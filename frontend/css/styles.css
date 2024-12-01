@@ -1,0 +1,144 @@
+/* Style global */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f7f7f7;
+    color: #333;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+h1 {
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #ffffff;
+    color: #4CAF50;
+    border: 2px solid #4CAF50;
+    border-radius: 30px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+    background-color: #4CAF50;
+    color: white;
+    transform: translateY(-3px);
+}
+
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 0;
+}
+
+/* Conteneur de l'arbre généalogique */
+#tree-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+}
+
+/* Nœud de l'arbre généalogique */
+.tree-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+    position: relative;
+}
+
+/* Lignes entre les nœuds (parents-enfants) */
+.tree-node::before {
+    content: "";
+    position: absolute;
+    top: -20px;
+    width: 2px;
+    height: 20px;
+    background-color: #4CAF50;
+    left: 50%;
+    margin-left: -1px;
+}
+
+/* Nœuds (personnes) */
+.node {
+    background-color: #8BC34A;
+    color: white;
+    padding: 20px 40px;
+    border-radius: 25px;
+    margin: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+/* Conteneur des enfants (décalage horizontal) */
+.node-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+/* Animation au survol des nœuds */
+.node:hover {
+    transform: scale(1.1);
+}
+
+/* Lien horizontal entre les nœuds (enfants) */
+.node-container::before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    width: 2px;
+    height: 20px;
+    background-color: #4CAF50;
+    left: 50%;
+    margin-left: -1px;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 14px;
+}

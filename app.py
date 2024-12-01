@@ -1,68 +1,59 @@
 from flask import Flask, send_from_directory, jsonify, request
 import os
-import json
 
-app = Flask(
-    __name__,
-    static_folder="frontend/static",  # Fichiers CSS, JS, images
-    template_folder="frontend"        # Fichiers HTML
-)
+app = Flask(__name__, static_folder='frontend', static_url_path='/frontend')
 
-# Fichier JSON pour sauvegarder les données
-DATA_FILE = os.path.join("frontend", "data", "arbre.json")
+# Données d'exemple pour l'arbre généalogique
+tree_data = {
+    'nom': 'Racine',
+    'id': 1,
+    'enfants': []
+}
 
-# Charger les données de l'arbre
-def load_data():
-    try:
-        with open(DATA_FILE, "r") as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return {"id": 1, "nom": "Racine", "enfants": []}
-
-# Sauvegarder les données de l'arbre
-def save_data(data):
-    with open(DATA_FILE, "w") as file:
-        json.dump(data, file, indent=4)
-
-@app.route("/")
+# Route principale pour afficher index.html
+@app.route('/')
 def index():
-    return send_from_directory(app.template_folder, "index.html")
+    return send_from_directory(os.getcwd(), 'index.html')
 
-@app.route("/get_tree", methods=["GET"])
+# Route pour récupérer l'arbre sous forme de JSON
+@app.route('/get_tree')
 def get_tree():
-    arbre = load_data()
-    return jsonify(arbre)
+    return jsonify(tree_data)
 
-@app.route("/add_person", methods=["POST"])
+# Route pour ajouter une personne
+@app.route('/add_person', methods=['POST'])
 def add_person():
-    data = request.json
-    arbre = load_data()
-    parent_id = data.get("parent_id")
-    new_person = {
-        "id": data.get("id"),
-        "nom": data.get("nom"),
-        "enfants": []
-    }
+    new_person = request.get_json()
+    parent_id = new_person.get('parent_id')
 
-    # Fonction récursive pour ajouter un enfant
-    def add_child(node, new_person):
-        if node["id"] == parent_id:
-            node["enfants"].append(new_person)
-            return True
-        for enfant in node["enfants"]:
-            if add_child(enfant, new_person):
-                return True
-        return False
+    # Recherche du parent par ID
+    def find_parent(node, parent_id):
+        if node['id'] == parent_id:
+            return node
+        for child in node.get('enfants', []):
+            found = find_parent(child, parent_id)
+            if found:
+                return found
+        return None
 
     if parent_id:
-        success = add_child(arbre, new_person)
-        if not success:
-            return jsonify({"status": "error", "message": "Parent introuvable"}), 400
+        parent_node = find_parent(tree_data, parent_id)
+        if parent_node:
+            parent_node['enfants'].append({
+                'nom': new_person['nom'],
+                'id': new_person['id'],
+                'enfants': []
+            })
+            return jsonify({'status': 'success'})
+        else:
+            return jsonify({'status': 'error', 'message': 'Parent non trouvé'})
     else:
-        arbre["enfants"].append(new_person)
+        tree_data['enfants'].append({
+            'nom': new_person['nom'],
+            'id': new_person['id'],
+            'enfants': []
+        })
+        return jsonify({'status': 'success'})
 
-    save_data(arbre)
-    return jsonify({"status": "success", "arbre": arbre})
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
