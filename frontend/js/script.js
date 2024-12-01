@@ -14,7 +14,7 @@ function renderTree(treeData) {
 
     const treeDiv = document.createElement('div');
     treeDiv.className = 'tree-node';
-    treeDiv.innerHTML = `<div class="node">${treeData.nom}</div>`;
+    treeDiv.innerHTML = `<div class="node">ID: ${treeData.id}<br>Nom: ${treeData.nom}<br>Prénom: ${treeData.prenom}<br>Sexe: ${treeData.sexe}<br>Date de naissance: ${treeData.dob}</div>`;
 
     treeContainer.appendChild(treeDiv);
 
@@ -33,7 +33,7 @@ function renderTree(treeData) {
 function renderChild(child, parentElement) {
     const childDiv = document.createElement('div');
     childDiv.className = 'tree-node';
-    childDiv.innerHTML = `<div class="node">${child.nom}</div>`;
+    childDiv.innerHTML = `<div class="node">ID: ${child.id}<br>Nom: ${child.nom}<br>Prénom: ${child.prenom}<br>Sexe: ${child.sexe}<br>Date de naissance: ${child.dob}</div>`;
     parentElement.appendChild(childDiv);
 
     if (child.enfants.length > 0) {
@@ -46,16 +46,29 @@ function renderChild(child, parentElement) {
     }
 }
 
-// Ajouter une personne via un bouton
+// Afficher le formulaire d'ajout de personne
 document.getElementById('addPerson').addEventListener('click', function() {
-    const nom = prompt("Nom de la nouvelle personne :");
-    if (!nom) return;
+    document.getElementById('form-container').style.display = 'block';
+});
 
-    const parentId = prompt("ID du parent (laisser vide pour ajouter à la racine) :");
+// Ajouter une personne via le formulaire
+document.getElementById('addPersonForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const firstName = document.getElementById('first-name').value;
+    const lastName = document.getElementById('last-name').value;
+    const gender = document.getElementById('gender').value;
+    const dob = document.getElementById('dob').value;
+    const parentId = document.getElementById('parent-id').value || null;
+
     const newPerson = {
         id: Date.now(),  // Utiliser un ID unique basé sur l'heure
-        nom: nom,
-        parent_id: parentId ? parseInt(parentId) : null
+        nom: lastName,
+        prenom: firstName,
+        sexe: gender,
+        dob: dob,
+        parent_id: parentId,
+        enfants: []
     };
 
     fetch('/add_person', {

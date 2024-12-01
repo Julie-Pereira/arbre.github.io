@@ -63,7 +63,7 @@ main {
     padding: 40px 0;
 }
 
-/* Conteneur de l'arbre généalogique */
+/* Arbre généalogique */
 #tree-container {
     display: flex;
     flex-direction: column;
@@ -117,23 +117,6 @@ main {
     margin-top: 20px;
 }
 
-/* Animation au survol des nœuds */
-.node:hover {
-    transform: scale(1.1);
-}
-
-/* Lien horizontal entre les nœuds (enfants) */
-.node-container::before {
-    content: "";
-    position: absolute;
-    top: 20px;
-    width: 2px;
-    height: 20px;
-    background-color: #4CAF50;
-    left: 50%;
-    margin-left: -1px;
-}
-
 /* Footer */
 footer {
     background-color: #333;
@@ -141,4 +124,45 @@ footer {
     text-align: center;
     padding: 10px 0;
     font-size: 14px;
+}
+
+/* Formulaire d'ajout de personne */
+#form-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#form-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+#form-container label {
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+#form-container input, #form-container select {
+    margin-bottom: 15px;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#form-container button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#form-container button:hover {
+    background-color: #45a049;
 }

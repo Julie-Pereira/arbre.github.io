@@ -3,18 +3,11 @@
     "nom": "Racine",
     "enfants": [
         {
-            "id": 1733075469596,
-            "nom": "Julie",
-            "enfants": []
-        },
-        {
-            "id": 1733084730777,
-            "nom": "Test",
-            "enfants": []
-        },
-        {
-            "id": 1733085570030,
-            "nom": "Alice",
+            "id": 1733088688640,
+            "nom": "Pereira",
+            "prenom": "Julie",
+            "sexe": "femme",
+            "dob": "1991-07-11",
             "enfants": []
         }
     ]
