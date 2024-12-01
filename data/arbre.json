@@ -1,0 +1,11 @@
+{
+    "id": 1,
+    "nom": "Racine",
+    "enfants": [
+        {
+            "id": 1733075469596,
+            "nom": "Julie",
+            "enfants": []
+        }
+    ]
+}

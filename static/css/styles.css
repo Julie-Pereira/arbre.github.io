@@ -1,0 +1,22 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+#tree {
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    display: inline-block;
+}
+
+.node {
+    display: inline-block;
+    margin: 10px;
+    padding: 5px 10px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
