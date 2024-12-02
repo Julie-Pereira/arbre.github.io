@@ -1,10 +1,12 @@
 // Charger l'arbre généalogique initialement
-window.onload = function() {
-    fetch('/get_tree')
-        .then(response => response.json())
-        .then(data => {
-            renderTree(data);
-        });
+window.onload = async function () {
+    try {
+        const response = await fetch('/get_tree');
+        const treeData = await response.json();
+        renderTree(treeData);
+    } catch (error) {
+        console.error("Erreur lors du chargement de l'arbre :", error);
+    }
 };
 
 // Fonction pour afficher l'arbre généalogique
@@ -52,7 +54,7 @@ document.getElementById('addPerson').addEventListener('click', function() {
 });
 
 // Ajouter une personne via le formulaire
-document.getElementById('addPersonForm').addEventListener('submit', function(event) {
+document.getElementById('addPersonForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
     const firstName = document.getElementById('first-name').value;
@@ -61,31 +63,28 @@ document.getElementById('addPersonForm').addEventListener('submit', function(eve
     const dob = document.getElementById('dob').value;
     const parentId = document.getElementById('parent-id').value || null;
 
-    const newPerson = {
-        id: Date.now(),  // Utiliser un ID unique basé sur l'heure
-        nom: lastName,
-        prenom: firstName,
-        sexe: gender,
-        dob: dob,
-        parent_id: parentId,
-        enfants: []
-    };
+    try {
+        const response = await fetch('/add_person', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nom: lastName,
+                prenom: firstName,
+                sexe: gender,
+                dob: dob,
+                parent_id: parentId ? parseInt(parentId) : null
+            })
+        });
 
-    fetch('/add_person', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPerson)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === "success") {
+        const result = await response.json();
+        if (response.ok) {
             alert("Personne ajoutée avec succès !");
-            location.reload();  // Recharge la page pour voir les changements
+            document.getElementById('form-container').style.display = 'none';
+            window.location.reload();
         } else {
-            alert("Erreur lors de l'ajout : " + data.message);
+            alert("Erreur : " + result.message);
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error("Erreur lors de l'ajout :", error);
-    });
+    }
 });
