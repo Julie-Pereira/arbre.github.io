@@ -1,7 +1,8 @@
 // Charger l'arbre généalogique initialement
 window.onload = async function () {
     try {
-        const response = await fetch('/get_tree');
+        // Remplace l'URL par celle de ton serveur Flask hébergé (Heroku ou autre)
+        const response = await fetch('https://ton-serveur-flask.com/get_tree');
         const treeData = await response.json();
         renderTree(treeData);
     } catch (error) {
@@ -64,7 +65,8 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
     const parentId = document.getElementById('parent-id').value || null;
 
     try {
-        const response = await fetch('/add_person', {
+        // Remplace l'URL par celle de ton serveur Flask
+        const response = await fetch('https://ton-serveur-flask.com/add_person', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
