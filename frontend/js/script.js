@@ -1,9 +1,8 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-
-const supabaseUrl = 'https://uwqimphpkzcjinlucwwl.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cWltcGhwa3pjamlubHVjd3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMxMzA1ODcsImV4cCI6MjA0ODcwNjU4N30.IA-ZS1tu3FuUdrTioALpWuiJvgkkZRn4qX_ghcW4tXI'
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabaseUrl = 'https://uwqimphpkzcjinlucwwl.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cWltcGhwa3pjamlubHVjd3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMxMzA1ODcsImV4cCI6MjA0ODcwNjU4N30.IA-ZS1tu3FuUdrTioALpWuiJvgkkZRn4qX_ghcW4tXI';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Charger l'arbre généalogique initialement
 window.onload = async function () {
@@ -22,22 +21,60 @@ window.onload = async function () {
     }
 };
 
-// Fonction pour afficher l'arbre généalogique
+// Fonction pour afficher l'arbre généalogique avec liens entre parents et enfants
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = ''; // Réinitialiser le contenu avant de le remplir
 
+    // Créer une carte des membres pour faciliter l'accès
+    const memberMap = members.reduce((acc, member) => {
+        acc[member.id] = { ...member, children: [] };
+        return acc;
+    }, {});
+
+    // Relier les enfants aux parents
     members.forEach(member => {
-        const treeDiv = document.createElement('div');
-        treeDiv.className = 'tree-node';
-        treeDiv.innerHTML = `
-            <div class="node">
-                ID: ${member.id}<br>Nom: ${member.nom}<br>Prénom: ${member.prenom}<br>
-                Sexe: ${member.sexe}<br>Date de naissance: ${member.dob}
-            </div>
-        `;
-        treeContainer.appendChild(treeDiv);
+        if (member.parent_id && memberMap[member.parent_id]) {
+            memberMap[member.parent_id].children.push(member);
+        }
     });
+
+    // Afficher les membres et leurs enfants
+    members.filter(member => !member.parent_id).forEach(root => {
+        displayMember(root, treeContainer, memberMap);
+    });
+}
+
+// Fonction récursive pour afficher un membre et ses enfants
+function displayMember(member, container, memberMap) {
+    const memberDiv = document.createElement('div');
+    memberDiv.className = 'tree-node';
+
+    const parentLink = member.parent_id ? `<a class="parent-link" href="#" onclick="goToParent(${member.parent_id})">Voir parent</a>` : '';
+
+    memberDiv.innerHTML = `
+        <div class="node">
+            ID: ${member.id}<br>Nom: ${member.nom}<br>Prénom: ${member.prenom}<br>
+            Sexe: ${member.sexe}<br>Date de naissance: ${member.dob}<br>
+            ${parentLink}
+        </div>
+        <div class="child-nodes">
+            ${memberMap[member.id] && memberMap[member.id].children.length > 0 ? memberMap[member.id].children.map(child => `
+                <div class="tree-node">
+                    <div class="node">
+                        ID: ${child.id}<br>Nom: ${child.nom}<br>Prénom: ${child.prenom}<br>
+                        Sexe: ${child.sexe}<br>Date de naissance: ${child.dob}
+                    </div>
+                </div>`).join('') : ''}
+        </div>
+    `;
+
+    container.appendChild(memberDiv);
+}
+
+// Fonction pour naviguer vers un parent spécifique (simple effet ici)
+function goToParent(parentId) {
+    alert(`Afficher les détails du parent avec ID: ${parentId}`);
 }
 
 // Ajouter une personne via le formulaire

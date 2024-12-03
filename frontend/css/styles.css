@@ -1,21 +1,83 @@
+/* frontend/css/style.css */
+
 body {
     font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    text-align: center;
 }
 
-#tree-container {
+h1 {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    margin: 0;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
     margin-top: 20px;
 }
 
-.tree-node {
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin: 10px;
-}
-
-.node-container {
-    margin-left: 20px;
+button:hover {
+    background-color: #45a049;
 }
 
 #form-container {
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
     margin-top: 20px;
+    width: 300px;
+    margin: auto;
+}
+
+#tree-container {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.tree-node {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 8px;
+    width: 250px;
+    text-align: left;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.node {
+    font-weight: bold;
+}
+
+.node span {
+    display: block;
+    margin-top: 5px;
+    color: #555;
+}
+
+.child-nodes {
+    margin-top: 10px;
+    margin-left: 20px;
+}
+
+.parent-link {
+    font-size: 14px;
+    color: #007BFF;
+    cursor: pointer;
+}
+
+.parent-link:hover {
+    text-decoration: underline;
 }
