@@ -1,168 +1,21 @@
-/* Style global */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f7f7f7;
-    color: #333;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    font-family: Arial, sans-serif;
 }
 
-header {
-    background-color: #4CAF50;
-    color: white;
-    padding: 20px 0;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-header .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-h1 {
-    font-size: 36px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-}
-
-button {
-    background-color: #ffffff;
-    color: #4CAF50;
-    border: 2px solid #4CAF50;
-    border-radius: 30px;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-button:hover {
-    background-color: #4CAF50;
-    color: white;
-    transform: translateY(-3px);
-}
-
-main {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px 0;
-}
-
-/* Arbre généalogique */
 #tree-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 1200px;
-}
-
-/* Nœud de l'arbre généalogique */
-.tree-node {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 20px;
-    position: relative;
-}
-
-/* Lignes entre les nœuds (parents-enfants) */
-.tree-node::before {
-    content: "";
-    position: absolute;
-    top: -20px;
-    width: 2px;
-    height: 20px;
-    background-color: #4CAF50;
-    left: 50%;
-    margin-left: -1px;
-}
-
-/* Nœuds (personnes) */
-.node {
-    background-color: #8BC34A;
-    color: white;
-    padding: 20px 40px;
-    border-radius: 25px;
-    margin: 10px;
-    font-size: 18px;
-    font-weight: 600;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    transition: transform 0.3s ease;
-    position: relative;
-    z-index: 1;
-}
-
-/* Conteneur des enfants (décalage horizontal) */
-.node-container {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
     margin-top: 20px;
 }
 
-/* Footer */
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    font-size: 14px;
-}
-
-/* Formulaire d'ajout de personne */
-#form-container {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-#form-container form {
-    display: flex;
-    flex-direction: column;
-}
-
-#form-container label {
-    margin-bottom: 8px;
-    font-size: 16px;
-}
-
-#form-container input, #form-container select {
-    margin-bottom: 15px;
-    padding: 8px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-#form-container button {
-    background-color: #4CAF50;
-    color: white;
+.tree-node {
+    border: 1px solid #ddd;
     padding: 10px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    margin: 10px;
 }
 
-#form-container button:hover {
-    background-color: #45a049;
+.node-container {
+    margin-left: 20px;
+}
+
+#form-container {
+    margin-top: 20px;
 }
