@@ -26,19 +26,23 @@ function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = ''; // Réinitialiser le contenu avant de le remplir
 
+    // Créer une map des membres pour les organiser en structure parent-enfant
     const memberMap = members.reduce((acc, member) => {
         acc[member.id] = { ...member, children: [] };
         return acc;
     }, {});
 
+    // Organiser les membres en enfants de leurs parents
     members.forEach(member => {
         if (member.parent_id && memberMap[member.parent_id]) {
             memberMap[member.parent_id].children.push(memberMap[member.id]);
         }
     });
 
+    // Trouver les racines (membres sans parents)
     const roots = members.filter(member => !member.parent_id);
 
+    // Afficher les racines et leurs enfants
     roots.forEach(root => {
         renderNode(root, treeContainer);
     });
@@ -55,21 +59,28 @@ function renderNode(member, container) {
             Sexe: ${member.sexe}<br>
             Date de naissance: ${member.dob}
         </div>
-        <button class="delete" onclick="deletePerson(${member.id})">Supprimer</button>
+        <button class="delete" data-member-id="${member.id}">Supprimer</button>
     `;
 
     container.appendChild(node);
 
+    // Si le membre a des enfants, les afficher
     if (member.children && member.children.length > 0) {
         const childrenContainer = document.createElement('div');
         childrenContainer.className = 'children-container';
 
         member.children.forEach(child => {
-            renderNode(child, childrenContainer);
+            renderNode(child, childrenContainer); // Appel récursif pour chaque enfant
         });
 
         container.appendChild(childrenContainer);
     }
+
+    // Attacher l'événement de suppression pour ce membre
+    const deleteButton = node.querySelector('.delete');
+    deleteButton.addEventListener('click', function() {
+        deletePerson(member.id);  // Appeler la fonction de suppression pour ce membre
+    });
 }
 
 // Fonction pour supprimer un membre
