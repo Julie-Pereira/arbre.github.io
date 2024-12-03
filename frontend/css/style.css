@@ -1,116 +1,65 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+#tree-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.tree-node {
+    margin: 10px;
+    padding: 10px;
+    background-color: #ffffff;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.node {
+    text-align: center;
+}
+
+.children {
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
-    flex-direction: column;
+    margin-top: 20px;
 }
 
-#app {
-    max-width: 900px;
-    width: 100%;
-    text-align: center;
-    background-color: white;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.tree-node .node {
+    margin-bottom: 10px;
 }
 
-h1 {
-    color: #333;
-    margin-bottom: 20px;
+.tree-node + .children {
+    border-left: 3px solid #007bff;
+    padding-left: 20px;
 }
 
 button {
-    background-color: #4CAF50;
+    background-color: #28a745;
     color: white;
-    padding: 10px 20px;
     border: none;
+    padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
     margin-top: 10px;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #218838;
 }
 
 #form-container {
     display: none;
     margin-top: 20px;
     padding: 20px;
-    background-color: #f9f9f9;
+    background-color: white;
+    border: 1px solid #ccc;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-input, select {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-input[type="date"] {
-    max-width: 200px;
-}
-
-button[type="submit"], button[type="button"] {
-    width: 100%;
-}
-
-button[type="button"] {
-    background-color: #f44336;
-    margin-top: 10px;
-}
-
-button[type="button"]:hover {
-    background-color: #e53935;
-}
-
-#tree-container {
-    margin-top: 30px;
-}
-
-.tree-node {
-    background-color: #e3f2fd;
-    border-radius: 8px;
-    padding: 10px;
-    margin: 10px 0;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    position: relative;
-}
-
-.node {
-    font-size: 16px;
-    color: #333;
-}
-
-.node button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #f44336;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-}
-
-.node button:hover {
-    background-color: #e53935;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }

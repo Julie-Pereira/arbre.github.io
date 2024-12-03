@@ -14,12 +14,39 @@ window.onload = async function () {
         if (error) {
             console.error("Erreur lors du chargement des membres :", error);
         } else {
-            renderTree(data); // Appelle la fonction pour afficher l'arbre
+            const members = buildTree(data);
+            renderTree(members); // Afficher l'arbre
         }
     } catch (error) {
         console.error("Erreur lors du chargement de l'arbre :", error);
     }
 };
+
+// Construire l'arbre généalogique
+function buildTree(members) {
+    const memberMap = new Map();
+    const rootMembers = [];
+
+    // Créer une map des membres par ID pour faciliter l'accès aux parents
+    members.forEach(member => {
+        member.enfants = []; // Initialiser les enfants de chaque membre
+        memberMap.set(member.id, member);
+    });
+
+    // Associer les membres aux enfants
+    members.forEach(member => {
+        if (member.parent_id) {
+            const parent = memberMap.get(member.parent_id);
+            if (parent) {
+                parent.enfants.push(member); // Ajouter l'enfant au parent
+            }
+        } else {
+            rootMembers.push(member); // Si le membre n'a pas de parent, c'est la racine
+        }
+    });
+
+    return rootMembers;
+}
 
 // Fonction pour afficher l'arbre généalogique
 function renderTree(members) {
@@ -31,12 +58,44 @@ function renderTree(members) {
         treeDiv.className = 'tree-node';
         treeDiv.innerHTML = `
             <div class="node">
-                ID: ${member.id}<br>Nom: ${member.nom}<br>Prénom: ${member.prenom}<br>
-                Sexe: ${member.sexe}<br>Date de naissance: ${member.dob}
-                <button onclick="deleteMember(${member.id})">Supprimer</button>
+                <strong>${member.prenom} ${member.nom}</strong><br>
+                Sexe: ${member.sexe}<br>
+                Date de naissance: ${member.dob}
             </div>
         `;
         treeContainer.appendChild(treeDiv);
+
+        // Si ce membre a des enfants, les afficher récursivement
+        if (member.enfants.length > 0) {
+            const childrenDiv = document.createElement('div');
+            childrenDiv.className = 'children';
+            renderChildren(member.enfants, childrenDiv);
+            treeContainer.appendChild(childrenDiv);
+        }
+    });
+}
+
+// Fonction pour afficher les enfants d'un membre
+function renderChildren(children, parentElement) {
+    children.forEach(child => {
+        const childDiv = document.createElement('div');
+        childDiv.className = 'tree-node';
+        childDiv.innerHTML = `
+            <div class="node">
+                <strong>${child.prenom} ${child.nom}</strong><br>
+                Sexe: ${child.sexe}<br>
+                Date de naissance: ${child.dob}
+            </div>
+        `;
+        parentElement.appendChild(childDiv);
+
+        // Si l'enfant a des enfants, afficher récursivement
+        if (child.enfants.length > 0) {
+            const childChildrenDiv = document.createElement('div');
+            childChildrenDiv.className = 'children';
+            renderChildren(child.enfants, childChildrenDiv);
+            parentElement.appendChild(childChildrenDiv);
+        }
     });
 }
 
@@ -83,26 +142,3 @@ document.getElementById('addPersonButton').addEventListener('click', function() 
 document.getElementById('cancelButton').addEventListener('click', function() {
     document.getElementById('form-container').style.display = 'none';
 });
-
-// Supprimer un membre de l'arbre
-async function deleteMember(id) {
-    const confirmation = confirm('Voulez-vous vraiment supprimer ce membre ?');
-
-    if (confirmation) {
-        try {
-            const { data, error } = await supabase
-                .from('members')
-                .delete()
-                .eq('id', id);
-
-            if (error) {
-                alert("Erreur lors de la suppression : " + error.message);
-            } else {
-                alert("Membre supprimé avec succès !");
-                window.location.reload(); // Rafraîchir l'arbre après suppression
-            }
-        } catch (error) {
-            console.error("Erreur lors de la suppression :", error);
-        }
-    }
-}
