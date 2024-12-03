@@ -21,7 +21,6 @@ window.onload = async function () {
     }
 };
 
-// Fonction pour afficher l'arbre généalogique avec hiérarchie
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = ''; // Réinitialiser le contenu avant de le remplir
@@ -95,14 +94,17 @@ async function deletePerson(memberId) {
             alert("Erreur lors de la suppression: " + error.message);
         } else {
             alert("Membre supprimé avec succès !");
-            window.location.reload(); // Recharge la page après suppression
+            // Mettre à jour dynamiquement l'arbre après suppression
+            const memberNode = document.querySelector(`button.delete[data-member-id="${memberId}"]`).closest('.tree-node');
+            if (memberNode) {
+                memberNode.remove();  // Supprimer le membre du DOM
+            }
         }
     } catch (error) {
         console.error("Erreur lors de la suppression :", error);
     }
 }
 
-// Ajouter une personne via le formulaire
 document.getElementById('addPersonForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -113,6 +115,19 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
     const parentId = document.getElementById('parent-id').value || null;
 
     try {
+        // Si un parent_id est spécifié, vérifie qu'il existe dans la base de données
+        if (parentId) {
+            const { data: parentData, error: parentError } = await supabase
+                .from('members')
+                .select('*')
+                .eq('id', parentId)
+                .single();
+            if (parentError || !parentData) {
+                alert("Le parent spécifié n'existe pas !");
+                return;
+            }
+        }
+
         const { data, error } = await supabase
             .from('members')
             .insert([
@@ -135,6 +150,7 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
         console.error("Erreur lors de l'ajout :", error);
     }
 });
+
 
 // Afficher le formulaire d'ajout
 document.getElementById('addPersonButton').addEventListener('click', function() {
