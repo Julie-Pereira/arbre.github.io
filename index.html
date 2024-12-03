@@ -8,34 +8,30 @@
 </head>
 <body>
 
-    <div id="app">
-        <!-- Titre de l'application -->
-        <h1>Arbre Généalogique</h1>
+    <h1>Arbre Généalogique</h1>
+    
+    <!-- Conteneur pour l'arbre -->
+    <div id="tree-container"></div>
 
-        <!-- Bouton d'ajout -->
-        <button id="addPersonButton">Ajouter un membre</button>
-
-        <!-- Formulaire d'ajout -->
-        <div id="form-container" class="form-container">
-            <h2>Ajouter un Membre</h2>
-            <form id="addPersonForm">
-                <input type="text" id="first-name" placeholder="Prénom" required>
-                <input type="text" id="last-name" placeholder="Nom" required>
-                <select id="gender" required>
-                    <option value="homme">Homme</option>
-                    <option value="femme">Femme</option>
-                </select>
-                <input type="date" id="dob" placeholder="Date de naissance" required>
-                <input type="number" id="parent-id" placeholder="ID du parent (optionnel)" min="1">
-
-                <button type="submit">Ajouter</button>
-                <button type="button" id="cancelButton">Annuler</button>
-            </form>
-        </div>
-
-        <!-- Conteneur de l'arbre généalogique -->
-        <div id="tree-container"></div>
+    <!-- Formulaire d'ajout de membre -->
+    <div id="form-container">
+        <h3>Ajouter un membre</h3>
+        <form id="addPersonForm">
+            <input type="text" id="first-name" placeholder="Prénom" required>
+            <input type="text" id="last-name" placeholder="Nom" required>
+            <select id="gender">
+                <option value="homme">Homme</option>
+                <option value="femme">Femme</option>
+            </select>
+            <input type="date" id="dob" placeholder="Date de naissance" required>
+            <input type="number" id="parent-id" placeholder="ID du parent (facultatif)">
+            <button type="submit">Ajouter</button>
+        </form>
+        <button id="cancelButton">Annuler</button>
     </div>
+
+    <!-- Bouton pour ouvrir le formulaire -->
+    <button id="addPersonButton">Ajouter une personne</button>
 
     <script type="module" src="frontend/js/script.js"></script>
 </body>

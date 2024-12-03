@@ -1,36 +1,44 @@
+/* Styles généraux */
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #f5f5f5;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
+    flex-direction: column;
 }
 
+/* Conteneur de l'arbre */
 #tree-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 80%;
+    width: 100%;
     max-width: 1000px;
-    margin-top: 30px;
     position: relative;
+    padding-top: 30px;
 }
 
+/* Style de chaque membre */
 .tree-node {
-    padding: 10px;
-    margin: 15px;
-    background-color: #fff;
+    display: inline-block;
+    padding: 15px;
+    background-color: #ffffff;
     border: 2px solid #007bff;
-    border-radius: 8px;
+    border-radius: 10px;
+    margin: 15px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    width: fit-content;
     text-align: center;
+    width: auto;
+    position: relative;
+    font-size: 16px;
 }
 
 .node {
-    font-size: 16px;
+    font-size: 14px;
     color: #333;
 }
 
@@ -39,18 +47,51 @@ body {
     color: #007bff;
 }
 
+.tree-node:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+/* Liaisons visuelles entre les parents et les enfants */
 .children {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 30px;
     position: relative;
-    margin-left: 40px; /* Décaler un peu plus les enfants */
 }
 
 .tree-node + .children {
     border-left: 2px dashed #007bff;
     padding-left: 30px;
     margin-top: 20px;
+}
+
+.children .tree-node {
+    margin-top: 10px;
+    margin-left: 50px;
+}
+
+/* Formulaire d'ajout */
+#form-container {
+    display: none;
+    background-color: #ffffff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+}
+
+input, select {
+    margin: 10px 0;
+    padding: 8px;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #ddd;
 }
 
 button {
@@ -60,6 +101,7 @@ button {
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
+    width: 100%;
     margin-top: 20px;
     transition: background-color 0.3s ease;
 }
@@ -68,20 +110,38 @@ button:hover {
     background-color: #0056b3;
 }
 
-#form-container {
-    display: none;
-    background-color: #ffffff;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    position: absolute;
-    top: 100px;
-    z-index: 10;
+#addPersonButton {
+    margin-top: 20px;
+    background-color: #28a745;
 }
 
-input, select {
-    margin: 10px 0;
-    padding: 8px;
-    width: 200px;
-    border-radius: 5
+#cancelButton {
+    background-color: #dc3545;
+}
+
+#addPersonButton:hover {
+    background-color: #218838;
+}
+
+#cancelButton:hover {
+    background-color: #c82333;
+}
+
+/* Masque pour le formulaire */
+#form-container {
+    z-index: 100;
+}
+
+/* Ajouter une animation d'apparition du formulaire */
+#form-container {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
