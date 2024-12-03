@@ -1,145 +1,128 @@
-/* Styles généraux */
+/* Définir la police pour le titre */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
+
+/* Style global du body */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f0f2f5;
+    font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
+    background-color: #f4f4f4;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     flex-direction: column;
+    align-items: center;
+    padding: 20px;
 }
 
-h1 {
+/* Header */
+.header {
     text-align: center;
-    color: #007bff;
     margin-bottom: 20px;
 }
 
-/* Conteneur de l'arbre */
+h1 {
+    font-size: 2.5rem;
+    color: #333;
+    font-weight: 700;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Bouton Ajouter des Personnes */
+.add-person {
+    text-align: right;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+#addPersonButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#addPersonButton:hover {
+    background-color: #45a049;
+}
+
+/* Formulaire d'ajout */
+.form-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    margin: 20px 0;
+}
+
+.form-container input, .form-container select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.form-container button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.form-container button:hover {
+    background-color: #45a049;
+}
+
+/* Conteneur de l'arbre généalogique */
 #tree-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 1000px;
-    position: relative;
 }
 
-/* Style de chaque membre */
+/* Style de chaque nœud de l'arbre */
 .tree-node {
-    display: inline-block;
-    padding: 20px;
-    background-color: #ffffff;
-    border: 2px solid #007bff;
-    border-radius: 10px;
-    margin: 20px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    margin: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    width: 250px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
-    position: relative;
-    font-size: 16px;
-    min-width: 120px;
 }
 
-/* Style du texte du membre */
 .node {
-    font-size: 14px;
+    font-size: 1rem;
     color: #333;
 }
 
-.node strong {
-    font-size: 18px;
-    color: #007bff;
-}
-
-/* Liaisons entre les membres */
-.tree-node::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: 20px;
-    background-color: #007bff;
-}
-
-.tree-node + .children::before {
-    content: '';
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    width: 2px;
-    height: 20px;
-    background-color: #007bff;
-}
-
-/* Affichage des enfants sous les parents */
-.children {
+.children-container {
+    margin-top: 10px;
     display: flex;
+    flex-direction: row;
     justify-content: center;
-    position: relative;
 }
 
-.children .tree-node {
-    margin-top: 20px;
-    margin-left: 50px;
-    margin-right: 50px;
-}
-
-/* Style du formulaire d'ajout */
-#form-container {
-    display: none;
-    background-color: #ffffff;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    position: absolute;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 300px;
-}
-
-input, select {
-    margin: 10px 0;
-    padding: 8px;
-    width: 100%;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
-button {
-    background-color: #007bff;
+button.delete {
+    background-color: #f44336;
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 0.8rem;
     cursor: pointer;
-    width: 100%;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
+    border-radius: 5px;
+    margin-top: 10px;
 }
 
-button:hover {
-    background-color: #0056b3;
-}
-
-#addPersonButton {
-    margin-top: 20px;
-    background-color: #28a745;
-}
-
-#cancelButton {
-    background-color: #dc3545;
-}
-
-#addPersonButton:hover {
-    background-color: #218838;
-}
-
-#cancelButton:hover {
-    background-color: #c82333;
+button.delete:hover {
+    background-color: #e53935;
 }

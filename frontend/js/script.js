@@ -14,89 +14,81 @@ window.onload = async function () {
         if (error) {
             console.error("Erreur lors du chargement des membres :", error);
         } else {
-            const members = buildTree(data);
-            renderTree(members); // Afficher l'arbre
+            renderTree(data); // Appelle la fonction pour afficher l'arbre
         }
     } catch (error) {
         console.error("Erreur lors du chargement de l'arbre :", error);
     }
 };
 
-// Construire l'arbre généalogique
-function buildTree(members) {
-    const memberMap = new Map();
-    const rootMembers = [];
-
-    // Créer une map des membres par ID pour faciliter l'accès aux parents
-    members.forEach(member => {
-        member.enfants = []; // Initialiser les enfants de chaque membre
-        memberMap.set(member.id, member);
-    });
-
-    // Associer les membres aux enfants
-    members.forEach(member => {
-        if (member.parent_id) {
-            const parent = memberMap.get(member.parent_id);
-            if (parent) {
-                parent.enfants.push(member); // Ajouter l'enfant au parent
-            }
-        } else {
-            rootMembers.push(member); // Si le membre n'a pas de parent, c'est la racine
-        }
-    });
-
-    return rootMembers;
-}
-
-// Fonction pour afficher l'arbre généalogique
+// Fonction pour afficher l'arbre généalogique avec hiérarchie
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = ''; // Réinitialiser le contenu avant de le remplir
 
-    members.forEach(member => {
-        const treeDiv = document.createElement('div');
-        treeDiv.className = 'tree-node';
-        treeDiv.innerHTML = `
-            <div class="node">
-                <strong>${member.prenom} ${member.nom}</strong><br>
-                Sexe: ${member.sexe}<br>
-                Date de naissance: ${member.dob}
-            </div>
-        `;
-        treeContainer.appendChild(treeDiv);
+    const memberMap = members.reduce((acc, member) => {
+        acc[member.id] = { ...member, children: [] };
+        return acc;
+    }, {});
 
-        // Si ce membre a des enfants, les afficher récursivement
-        if (member.enfants.length > 0) {
-            const childrenDiv = document.createElement('div');
-            childrenDiv.className = 'children';
-            renderChildren(member.enfants, childrenDiv);
-            treeContainer.appendChild(childrenDiv);
+    members.forEach(member => {
+        if (member.parent_id && memberMap[member.parent_id]) {
+            memberMap[member.parent_id].children.push(memberMap[member.id]);
         }
+    });
+
+    const roots = members.filter(member => !member.parent_id);
+
+    roots.forEach(root => {
+        renderNode(root, treeContainer);
     });
 }
 
-// Fonction pour afficher les enfants d'un membre
-function renderChildren(children, parentElement) {
-    children.forEach(child => {
-        const childDiv = document.createElement('div');
-        childDiv.className = 'tree-node';
-        childDiv.innerHTML = `
-            <div class="node">
-                <strong>${child.prenom} ${child.nom}</strong><br>
-                Sexe: ${child.sexe}<br>
-                Date de naissance: ${child.dob}
-            </div>
-        `;
-        parentElement.appendChild(childDiv);
+// Fonction pour créer un nœud et afficher les enfants
+function renderNode(member, container) {
+    const node = document.createElement('div');
+    node.className = 'tree-node';
 
-        // Si l'enfant a des enfants, afficher récursivement
-        if (child.enfants.length > 0) {
-            const childChildrenDiv = document.createElement('div');
-            childChildrenDiv.className = 'children';
-            renderChildren(child.enfants, childChildrenDiv);
-            parentElement.appendChild(childChildrenDiv);
+    node.innerHTML = `
+        <div class="node">
+            <strong>${member.prenom} ${member.nom}</strong><br>
+            Sexe: ${member.sexe}<br>
+            Date de naissance: ${member.dob}
+        </div>
+        <button class="delete" onclick="deletePerson(${member.id})">Supprimer</button>
+    `;
+
+    container.appendChild(node);
+
+    if (member.children && member.children.length > 0) {
+        const childrenContainer = document.createElement('div');
+        childrenContainer.className = 'children-container';
+
+        member.children.forEach(child => {
+            renderNode(child, childrenContainer);
+        });
+
+        container.appendChild(childrenContainer);
+    }
+}
+
+// Fonction pour supprimer un membre
+async function deletePerson(memberId) {
+    try {
+        const { error } = await supabase
+            .from('members')
+            .delete()
+            .eq('id', memberId);
+
+        if (error) {
+            alert("Erreur lors de la suppression: " + error.message);
+        } else {
+            alert("Membre supprimé avec succès !");
+            window.location.reload(); // Recharge la page après suppression
         }
-    });
+    } catch (error) {
+        console.error("Erreur lors de la suppression :", error);
+    }
 }
 
 // Ajouter une personne via le formulaire
@@ -126,7 +118,7 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
             alert("Erreur lors de l'ajout : " + error.message);
         } else {
             alert("Personne ajoutée avec succès !");
-            window.location.reload();
+            window.location.reload(); // Recharge la page après ajout
         }
     } catch (error) {
         console.error("Erreur lors de l'ajout :", error);
@@ -136,9 +128,4 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
 // Afficher le formulaire d'ajout
 document.getElementById('addPersonButton').addEventListener('click', function() {
     document.getElementById('form-container').style.display = 'block';
-});
-
-// Annuler le formulaire d'ajout
-document.getElementById('cancelButton').addEventListener('click', function() {
-    document.getElementById('form-container').style.display = 'none';
 });
