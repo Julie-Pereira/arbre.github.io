@@ -9,11 +9,29 @@
 <body>
 
     <h1>Arbre Généalogique</h1>
-    
-    <!-- Conteneur pour l'arbre -->
-    <div id="tree-container"></div>
 
-    <!-- Formulaire d'ajout de membre -->
+    <!-- Conteneur pour l'arbre -->
+    <div id="tree-container">
+        <!-- Exemple d'un membre -->
+        <div class="tree-node">
+            <div class="node">Jean <br> Homme <br> 1950</div>
+            <div class="children">
+                <div class="tree-node">
+                    <div class="node">Marc <br> Homme <br> 1980</div>
+                    <div class="children">
+                        <div class="tree-node">
+                            <div class="node">Alex <br> Homme <br> 2010</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tree-node">
+                    <div class="node">Lucie <br> Femme <br> 1985</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire pour ajouter un membre -->
     <div id="form-container">
         <h3>Ajouter un membre</h3>
         <form id="addPersonForm">

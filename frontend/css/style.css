@@ -11,6 +11,12 @@ body {
     flex-direction: column;
 }
 
+h1 {
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
 /* Conteneur de l'arbre */
 #tree-container {
     display: flex;
@@ -19,24 +25,24 @@ body {
     width: 100%;
     max-width: 1000px;
     position: relative;
-    padding-top: 30px;
 }
 
 /* Style de chaque membre */
 .tree-node {
     display: inline-block;
-    padding: 15px;
+    padding: 20px;
     background-color: #ffffff;
     border: 2px solid #007bff;
     border-radius: 10px;
-    margin: 15px;
+    margin: 20px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: auto;
     position: relative;
     font-size: 16px;
+    min-width: 120px;
 }
 
+/* Style du texte du membre */
 .node {
     font-size: 14px;
     color: #333;
@@ -47,31 +53,42 @@ body {
     color: #007bff;
 }
 
-.tree-node:hover {
-    background-color: #f1f1f1;
-    cursor: pointer;
+/* Liaisons entre les membres */
+.tree-node::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 20px;
+    background-color: #007bff;
 }
 
-/* Liaisons visuelles entre les parents et les enfants */
+.tree-node + .children::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 2px;
+    height: 20px;
+    background-color: #007bff;
+}
+
+/* Affichage des enfants sous les parents */
 .children {
     display: flex;
     justify-content: center;
-    margin-top: 30px;
     position: relative;
 }
 
-.tree-node + .children {
-    border-left: 2px dashed #007bff;
-    padding-left: 30px;
-    margin-top: 20px;
-}
-
 .children .tree-node {
-    margin-top: 10px;
+    margin-top: 20px;
     margin-left: 50px;
+    margin-right: 50px;
 }
 
-/* Formulaire d'ajout */
+/* Style du formulaire d'ajout */
 #form-container {
     display: none;
     background-color: #ffffff;
@@ -125,23 +142,4 @@ button:hover {
 
 #cancelButton:hover {
     background-color: #c82333;
-}
-
-/* Masque pour le formulaire */
-#form-container {
-    z-index: 100;
-}
-
-/* Ajouter une animation d'apparition du formulaire */
-#form-container {
-    animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
 }
