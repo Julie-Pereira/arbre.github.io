@@ -21,60 +21,23 @@ window.onload = async function () {
     }
 };
 
-// Fonction pour afficher l'arbre généalogique avec liens entre parents et enfants
+// Fonction pour afficher l'arbre généalogique
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = ''; // Réinitialiser le contenu avant de le remplir
 
-    // Créer une carte des membres pour faciliter l'accès
-    const memberMap = members.reduce((acc, member) => {
-        acc[member.id] = { ...member, children: [] };
-        return acc;
-    }, {});
-
-    // Relier les enfants aux parents
     members.forEach(member => {
-        if (member.parent_id && memberMap[member.parent_id]) {
-            memberMap[member.parent_id].children.push(member);
-        }
+        const treeDiv = document.createElement('div');
+        treeDiv.className = 'tree-node';
+        treeDiv.innerHTML = `
+            <div class="node">
+                ID: ${member.id}<br>Nom: ${member.nom}<br>Prénom: ${member.prenom}<br>
+                Sexe: ${member.sexe}<br>Date de naissance: ${member.dob}
+                <button onclick="deleteMember(${member.id})">Supprimer</button>
+            </div>
+        `;
+        treeContainer.appendChild(treeDiv);
     });
-
-    // Afficher les membres et leurs enfants
-    members.filter(member => !member.parent_id).forEach(root => {
-        displayMember(root, treeContainer, memberMap);
-    });
-}
-
-// Fonction récursive pour afficher un membre et ses enfants
-function displayMember(member, container, memberMap) {
-    const memberDiv = document.createElement('div');
-    memberDiv.className = 'tree-node';
-
-    const parentLink = member.parent_id ? `<a class="parent-link" href="#" onclick="goToParent(${member.parent_id})">Voir parent</a>` : '';
-
-    memberDiv.innerHTML = `
-        <div class="node">
-            ID: ${member.id}<br>Nom: ${member.nom}<br>Prénom: ${member.prenom}<br>
-            Sexe: ${member.sexe}<br>Date de naissance: ${member.dob}<br>
-            ${parentLink}
-        </div>
-        <div class="child-nodes">
-            ${memberMap[member.id] && memberMap[member.id].children.length > 0 ? memberMap[member.id].children.map(child => `
-                <div class="tree-node">
-                    <div class="node">
-                        ID: ${child.id}<br>Nom: ${child.nom}<br>Prénom: ${child.prenom}<br>
-                        Sexe: ${child.sexe}<br>Date de naissance: ${child.dob}
-                    </div>
-                </div>`).join('') : ''}
-        </div>
-    `;
-
-    container.appendChild(memberDiv);
-}
-
-// Fonction pour naviguer vers un parent spécifique (simple effet ici)
-function goToParent(parentId) {
-    alert(`Afficher les détails du parent avec ID: ${parentId}`);
 }
 
 // Ajouter une personne via le formulaire
@@ -115,3 +78,31 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
 document.getElementById('addPersonButton').addEventListener('click', function() {
     document.getElementById('form-container').style.display = 'block';
 });
+
+// Annuler le formulaire d'ajout
+document.getElementById('cancelButton').addEventListener('click', function() {
+    document.getElementById('form-container').style.display = 'none';
+});
+
+// Supprimer un membre de l'arbre
+async function deleteMember(id) {
+    const confirmation = confirm('Voulez-vous vraiment supprimer ce membre ?');
+
+    if (confirmation) {
+        try {
+            const { data, error } = await supabase
+                .from('members')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                alert("Erreur lors de la suppression : " + error.message);
+            } else {
+                alert("Membre supprimé avec succès !");
+                window.location.reload(); // Rafraîchir l'arbre après suppression
+            }
+        } catch (error) {
+            console.error("Erreur lors de la suppression :", error);
+        }
+    }
+}

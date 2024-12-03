@@ -4,38 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arbre Généalogique</title>
-    <link rel="stylesheet" href="frontend/css/styles.css">  <!-- Lien vers ton fichier CSS -->
+    <link rel="stylesheet" href="frontend/css/style.css">
 </head>
 <body>
 
-    <h1>Arbre Généalogique</h1>
+    <div id="app">
+        <!-- Titre de l'application -->
+        <h1>Arbre Généalogique</h1>
 
-    <!-- Bouton pour afficher le formulaire d'ajout -->
-    <button id="addPersonButton">Ajouter une personne</button>
+        <!-- Bouton d'ajout -->
+        <button id="addPersonButton">Ajouter un membre</button>
 
-    <!-- Formulaire d'ajout -->
-    <div id="form-container" style="display: none;">
-        <form id="addPersonForm">
-            <label for="first-name">Prénom:</label>
-            <input type="text" id="first-name" required><br>
-            <label for="last-name">Nom:</label>
-            <input type="text" id="last-name" required><br>
-            <label for="gender">Sexe:</label>
-            <select id="gender" required>
-                <option value="Homme">Homme</option>
-                <option value="Femme">Femme</option>
-            </select><br>
-            <label for="dob">Date de naissance:</label>
-            <input type="date" id="dob" required><br>
-            <label for="parent-id">ID du parent (optionnel):</label>
-            <input type="number" id="parent-id"><br>
-            <button type="submit">Ajouter</button>
-        </form>
+        <!-- Formulaire d'ajout -->
+        <div id="form-container" class="form-container">
+            <h2>Ajouter un Membre</h2>
+            <form id="addPersonForm">
+                <input type="text" id="first-name" placeholder="Prénom" required>
+                <input type="text" id="last-name" placeholder="Nom" required>
+                <select id="gender" required>
+                    <option value="homme">Homme</option>
+                    <option value="femme">Femme</option>
+                </select>
+                <input type="date" id="dob" placeholder="Date de naissance" required>
+                <input type="number" id="parent-id" placeholder="ID du parent (optionnel)" min="1">
+
+                <button type="submit">Ajouter</button>
+                <button type="button" id="cancelButton">Annuler</button>
+            </form>
+        </div>
+
+        <!-- Conteneur de l'arbre généalogique -->
+        <div id="tree-container"></div>
     </div>
 
-    <!-- Conteneur de l'arbre généalogique -->
-    <div id="tree-container"></div>
-
-    <script type="module" src="frontend/js/script.js"></script> <!-- Lien vers ton fichier JS -->
+    <script type="module" src="frontend/js/script.js"></script>
 </body>
 </html>
