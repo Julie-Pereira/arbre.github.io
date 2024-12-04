@@ -23,64 +23,6 @@ h1 {
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Bouton Ajouter des Personnes */
-.add-person {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-#addPersonButton {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 1rem;
-    cursor: pointer;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease;
-}
-
-#addPersonButton:hover {
-    background-color: #45a049;
-}
-
-/* Formulaire d'ajout */
-.form-container {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 500px;
-    margin: 20px 0;
-}
-
-.form-container input, 
-.form-container select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    font-size: 1rem;
-}
-
-.form-container button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-}
-
-.form-container button:hover {
-    background-color: #45a049;
-}
-
 /* Conteneur de l'arbre généalogique */
 #tree-container {
     display: flex;
@@ -89,63 +31,50 @@ h1 {
     width: 100%;
 }
 
-/* Style des nœuds de l'arbre */
-.tree-node {
-    background-color: white;
-    margin: 10px;
-    padding: 15px;
-    border-radius: 8px;
-    width: 180px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    position: relative;
+/* Parents côte à côte */
+.parents {
+    display: flex;
+    justify-content: center;
+    gap: 50px; /* Espacement entre les parents */
 }
 
-/* Trait entre les parents et les enfants */
-.tree-node::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
+/* Chaque parent */
+.parent {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 150px;
+}
+
+/* Lien visuel entre les parents et les enfants */
+.line-between-parents-children {
     width: 2px;
-    height: 20px;
     background-color: #ddd;
-    transform: translateX(-50%);
+    height: 20px;
+    margin-top: 10px;
+    margin-bottom: 20px; /* Espacement entre la ligne et les enfants */
 }
 
-/* Conteneur des parents (côte à côte) */
-.parent-container {
+/* Conteneur des enfants (côte à côte) */
+.children {
     display: flex;
     justify-content: center;
-    gap: 30px;
-    position: relative;
+    gap: 30px; /* Espacement entre chaque enfant */
 }
 
-/* Conteneur pour les enfants (alignés sous les parents) */
-.children-container {
-    display: flex;
-    justify-content: center;
-    gap: 20px; /* Espacement entre chaque enfant */
-    margin-top: 20px;
-}
-
-/* Chaque enfant sous forme de nœud */
-.child-node {
+/* Chaque enfant */
+.child {
     background-color: white;
     padding: 15px;
     border-radius: 8px;
-    width: 180px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
+    width: 150px;
 }
 
-/* Contenu du nœud */
-.node-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
+/* Contenu de chaque personne */
 .person {
     text-align: center;
 }
@@ -168,6 +97,7 @@ h1 {
     margin-bottom: 5px;
 }
 
+/* Bouton delete (facultatif) */
 button.delete {
     background-color: #f44336;
     color: white;
@@ -191,34 +121,7 @@ button.delete:hover {
         gap: 15px;
     }
 
-    .tree-node {
-        width: 100%;
-    }
-
-    .children-container {
+    .parents, .children {
         flex-direction: column;
-        align-items: center;
     }
-
-    .child-node {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-}
-
-/* Conteneur pour les époux/épouses */
-.spouse-container {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 15px;
-}
-
-/* Style pour chaque conjoint */
-.spouse {
-    background-color: #f9f9f9;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
 }
