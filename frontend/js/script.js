@@ -48,13 +48,13 @@ function renderTree(members) {
     // Ajouter les membres racines (sans parent) à l'arbre
     members.forEach(member => {
         if (!member.parent_id) {
-            renderNode(memberMap[member.id], treeContainer);
+            renderNode(memberMap[member.id], members, treeContainer);
         }
     });
 }
 
 // Fonction pour créer un nœud HTML pour un membre et ses enfants
-function renderNode(member, container) {
+function renderNode(member, members, container) {
     const node = document.createElement('div');
     node.className = 'tree-node';
 
@@ -96,17 +96,19 @@ function renderNode(member, container) {
         node.appendChild(childrenContainer);
 
         member.children.forEach(child => {
-            renderNode(child, childrenContainer);
+            renderNode(child, members, childrenContainer);
         });
     }
 
     // Ajout de l'événement pour la suppression
     const deleteButton = node.querySelector('.delete-button');
-    deleteButton.addEventListener('click', async () => {
-        if (confirm(`Voulez-vous vraiment supprimer ${member.prenom} ${member.nom} ?`)) {
-            await deletePerson(member.id);
-        }
-    });
+    if (deleteButton) {
+        deleteButton.addEventListener('click', async () => {
+            if (confirm(`Voulez-vous vraiment supprimer ${member.prenom} ${member.nom} ?`)) {
+                await deletePerson(member.id);
+            }
+        });
+    }
 }
 
 // Fonction pour supprimer un membre
@@ -177,7 +179,6 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
         console.error("Erreur lors de l'ajout :", error);
     }
 });
-
 
 // Afficher le formulaire d'ajout
 document.getElementById('addPersonButton').addEventListener('click', function () {
