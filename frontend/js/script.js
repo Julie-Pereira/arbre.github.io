@@ -73,6 +73,22 @@ function renderNode(member, container) {
 
     container.appendChild(node);
 
+    // Afficher l'époux/épouse
+    if (member.spouse_id) {
+        const spouse = members.find(p => p.id === member.spouse_id);
+        if (spouse) {
+            const spouseDiv = document.createElement('div');
+            spouseDiv.className = 'spouse-container';
+            spouseDiv.innerHTML = `
+                <div class="spouse">
+                    <p>Nom : ${spouse.prenom} ${spouse.nom}</p>
+                    <p>Sexe : ${spouse.sexe}</p>
+                </div>
+            `;
+            node.appendChild(spouseDiv);
+        }
+    }
+
     // Conteneur pour les enfants
     if (member.children && member.children.length > 0) {
         const childrenContainer = document.createElement('div');
@@ -121,6 +137,7 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
     const gender = document.getElementById('gender').value;
     const dob = document.getElementById('dob').value;
     const parentId = document.getElementById('parent-id').value || null;
+    const spouseId = document.getElementById('spouse-id').value || null; // Récupère l'ID du conjoint
 
     try {
         if (parentId) {
@@ -136,6 +153,7 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
             }
         }
 
+        // Insertion du membre dans la base de données
         const { error } = await supabase
             .from('members')
             .insert([
@@ -144,7 +162,8 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
                     prenom: firstName,
                     sexe: gender,
                     dob: dob,
-                    parent_id: parentId ? parseInt(parentId) : null
+                    parent_id: parentId ? parseInt(parentId) : null,
+                    spouse_id: spouseId ? parseInt(spouseId) : null // Ajouter l'ID du conjoint
                 }
             ]);
 
@@ -158,6 +177,7 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
         console.error("Erreur lors de l'ajout :", error);
     }
 });
+
 
 // Afficher le formulaire d'ajout
 document.getElementById('addPersonButton').addEventListener('click', function () {
