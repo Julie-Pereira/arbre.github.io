@@ -1,8 +1,9 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
+const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
 const supabaseUrl = 'https://uwqimphpkzcjinlucwwl.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cWltcGhwa3pjamlubHVjd3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMxMzA1ODcsImV4cCI6MjA0ODcwNjU4N30.IA-ZS1tu3FuUdrTioALpWuiJvgkkZRn4qX_ghcW4tXI';
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(CORS_PROXY + supabaseUrl, supabaseKey);
 
 // Charger l'arbre généalogique à l'initialisation
 window.onload = async function () {
