@@ -5,7 +5,9 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Charger l'arbre généalogique initialement
-window.onload = async function () {
+window.onload = loadTree;
+
+async function loadTree() {
     try {
         const { data, error } = await supabase
             .from('members')
@@ -14,18 +16,17 @@ window.onload = async function () {
         if (error) {
             console.error("Erreur lors du chargement des membres :", error);
         } else {
-            renderTree(data); // Appelle la fonction pour afficher l'arbre
+            renderTree(data);
         }
     } catch (error) {
         console.error("Erreur lors du chargement de l'arbre :", error);
     }
-};
+}
 
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = ''; // Réinitialiser le contenu avant de le remplir
 
-    // Créer une map des membres pour les organiser en structure parent-enfant
     const memberMap = members.reduce((acc, member) => {
         acc[member.id] = { ...member, children: [] };
         return acc;
@@ -47,18 +48,22 @@ function renderTree(members) {
     });
 }
 
-// Fonction pour créer un nœud et afficher les enfants
 function renderNode(member, container) {
     const node = document.createElement('div');
     node.className = 'tree-node';
+    node.setAttribute('data-id', member.id);
 
     node.innerHTML = `
         <div class="node">
             <strong>${member.prenom} ${member.nom}</strong><br>
             Sexe: ${member.sexe}<br>
-            Date de naissance: ${member.dob}
+            Date de naissance: ${member.dob}<br>
+            <button class="delete" data-member-id="${member.id}">Supprimer</button>
         </div>
-        <button class="delete" data-member-id="${member.id}">Supprimer</button>
+        <div class="links">
+            ${member.parent_id ? `<button class="parent-link" data-parent-id="${member.parent_id}">Voir les parents</button>` : ''}
+            ${member.children && member.children.length > 0 ? `<button class="children-link" data-member-id="${member.id}">Voir les enfants</button>` : ''}
+        </div>
     `;
 
     container.appendChild(node);
@@ -69,42 +74,73 @@ function renderNode(member, container) {
         childrenContainer.className = 'children-container';
 
         member.children.forEach(child => {
-            renderNode(child, childrenContainer); // Appel récursif pour chaque enfant
+            renderNode(child, childrenContainer);
         });
 
         container.appendChild(childrenContainer);
     }
 
-    // Attacher l'événement de suppression pour ce membre
+    // Attacher l'événement pour supprimer un membre
     const deleteButton = node.querySelector('.delete');
-    deleteButton.addEventListener('click', function() {
-        deletePerson(member.id);  // Appeler la fonction de suppression pour ce membre
-    });
+    if (deleteButton) {
+        deleteButton.addEventListener('click', function () {
+            if (confirm(`Voulez-vous vraiment supprimer ${member.prenom} ${member.nom} ?`)) {
+                deletePerson(member.id);
+            }
+        });
+    }
+
+    // Afficher les parents ou enfants
+    const parentButton = node.querySelector('.parent-link');
+    if (parentButton) {
+        parentButton.addEventListener('click', function () {
+            alert(`Le parent de ${member.prenom} ${member.nom} est l'ID ${member.parent_id}`);
+        });
+    }
+
+    const childrenButton = node.querySelector('.children-link');
+    if (childrenButton) {
+        childrenButton.addEventListener('click', function () {
+            alert(`Les enfants de ${member.prenom} ${member.nom} sont : ${member.children.map(child => child.prenom).join(', ')}`);
+        });
+    }
 }
 
-// Fonction pour supprimer un membre
 async function deletePerson(memberId) {
     try {
+        // Supprimer récursivement les enfants d'un membre
+        const { data: children, error: childrenError } = await supabase
+            .from('members')
+            .select('*')
+            .eq('parent_id', memberId);
+
+        if (childrenError) {
+            alert("Erreur lors de la récupération des enfants : " + childrenError.message);
+            return;
+        }
+
+        for (const child of children) {
+            await deletePerson(child.id); // Suppression récursive
+        }
+
+        // Supprimer le membre
         const { error } = await supabase
             .from('members')
             .delete()
             .eq('id', memberId);
 
         if (error) {
-            alert("Erreur lors de la suppression: " + error.message);
+            alert("Erreur lors de la suppression : " + error.message);
         } else {
             alert("Membre supprimé avec succès !");
-            // Mettre à jour dynamiquement l'arbre après suppression
-            const memberNode = document.querySelector(`button.delete[data-member-id="${memberId}"]`).closest('.tree-node');
-            if (memberNode) {
-                memberNode.remove();  // Supprimer le membre du DOM
-            }
+            loadTree(); // Recharge tout l'arbre après suppression
         }
     } catch (error) {
         console.error("Erreur lors de la suppression :", error);
     }
 }
 
+// Ajout d'une nouvelle personne
 document.getElementById('addPersonForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -115,20 +151,20 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
     const parentId = document.getElementById('parent-id').value || null;
 
     try {
-        // Si un parent_id est spécifié, vérifie qu'il existe dans la base de données
         if (parentId) {
             const { data: parentData, error: parentError } = await supabase
                 .from('members')
                 .select('*')
                 .eq('id', parentId)
                 .single();
+
             if (parentError || !parentData) {
                 alert("Le parent spécifié n'existe pas !");
                 return;
             }
         }
 
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('members')
             .insert([
                 {
@@ -144,15 +180,14 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
             alert("Erreur lors de l'ajout : " + error.message);
         } else {
             alert("Personne ajoutée avec succès !");
-            window.location.reload(); // Recharge la page après ajout
+            loadTree(); // Recharge l'arbre après ajout
         }
     } catch (error) {
         console.error("Erreur lors de l'ajout :", error);
     }
 });
 
-
 // Afficher le formulaire d'ajout
-document.getElementById('addPersonButton').addEventListener('click', function() {
+document.getElementById('addPersonButton').addEventListener('click', function () {
     document.getElementById('form-container').style.display = 'block';
 });
