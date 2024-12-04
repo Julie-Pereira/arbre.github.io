@@ -4,7 +4,7 @@ const supabaseUrl = 'https://uwqimphpkzcjinlucwwl.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cWltcGhwa3pjamlubHVjd3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMxMzA1ODcsImV4cCI6MjA0ODcwNjU4N30.IA-ZS1tu3FuUdrTioALpWuiJvgkkZRn4qX_ghcW4tXI';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Charger l'arbre généalogique initialement
+// Charger l'arbre généalogique à l'initialisation
 window.onload = async function () {
     await loadTree();
 };
@@ -19,106 +19,81 @@ async function loadTree() {
         if (error) {
             console.error("Erreur lors du chargement des membres :", error);
         } else {
-            console.log("Membres chargés :", data); // Affiche les membres pour inspection
-            renderTree(data); // Appelle la fonction pour afficher l'arbre
+            renderTree(data);
         }
     } catch (error) {
         console.error("Erreur lors du chargement de l'arbre :", error);
     }
 }
 
-// Afficher l'arbre généalogique
+// Fonction pour afficher l'arbre généalogique
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
-    treeContainer.innerHTML = ''; // Réinitialiser le contenu avant de le remplir
+    treeContainer.innerHTML = '';
 
-    // Créer une map des membres pour les organiser en structure parent-enfant
+    // Organisation des membres en parent-enfant
     const memberMap = members.reduce((acc, member) => {
         acc[member.id] = { ...member, children: [] };
         return acc;
     }, {});
 
-    // Organiser les membres en enfants de leurs parents
     members.forEach(member => {
         if (member.parent_id) {
             if (memberMap[member.parent_id]) {
-                memberMap[member.parent_id].children.push(memberMap[member.id]); // Relie l'enfant au parent
-            } else {
-                console.warn(`Parent ID ${member.parent_id} manquant pour ${member.prenom} ${member.nom}`);
+                memberMap[member.parent_id].children.push(memberMap[member.id]);
             }
         }
     });
 
-    console.log("Membres organisés avec relations parent-enfant :", memberMap);
-
-    // Afficher tous les nœuds en partant des racines
+    // Ajouter les membres racines (sans parent) à l'arbre
     members.forEach(member => {
-        if (!member.parent_id || !memberMap[member.parent_id]) {
+        if (!member.parent_id) {
             renderNode(memberMap[member.id], treeContainer);
         }
     });
 }
 
-// Afficher un nœud et ses enfants
+// Fonction pour créer un nœud HTML pour un membre et ses enfants
 function renderNode(member, container) {
     const node = document.createElement('div');
     node.className = 'tree-node';
-    node.setAttribute('data-id', member.id);
 
     node.innerHTML = `
-        <div class="node">
-            <strong>${member.prenom} ${member.nom}</strong><br>
-            Sexe: ${member.sexe}<br>
-            Date de naissance: ${member.dob}<br>
-            <button class="delete" data-member-id="${member.id}">Supprimer</button>
-        </div>
-        <div class="links">
-            ${member.parent_id ? `<button class="parent-link" data-parent-id="${member.parent_id}">Voir les parents</button>` : ''}
-            ${member.children.length > 0 ? `<button class="children-link" data-member-id="${member.id}">Voir les enfants</button>` : ''}
+        <div class="node-content">
+            <div class="person">
+                <div class="name">${member.prenom} ${member.nom}</div>
+                <div class="details">
+                    <span class="dob">${member.dob}</span>
+                    <span class="gender">${member.sexe}</span>
+                </div>
+                <button class="delete-button" data-member-id="${member.id}">Supprimer</button>
+            </div>
         </div>
     `;
 
     container.appendChild(node);
 
-    // Si le membre a des enfants, les afficher
-    if (member.children.length > 0) {
+    // Conteneur pour les enfants
+    if (member.children && member.children.length > 0) {
         const childrenContainer = document.createElement('div');
         childrenContainer.className = 'children-container';
+        node.appendChild(childrenContainer);
 
         member.children.forEach(child => {
-            renderNode(child, childrenContainer); // Appel récursif pour chaque enfant
-        });
-
-        container.appendChild(childrenContainer);
-    }
-
-    // Attacher l'événement pour supprimer un membre
-    const deleteButton = node.querySelector('.delete');
-    if (deleteButton) {
-        deleteButton.addEventListener('click', function () {
-            if (confirm(`Voulez-vous vraiment supprimer ${member.prenom} ${member.nom} ?`)) {
-                deletePerson(member.id);
-            }
+            renderNode(child, childrenContainer);
         });
     }
 
-    // Afficher les parents ou enfants
-    const parentButton = node.querySelector('.parent-link');
-    if (parentButton) {
-        parentButton.addEventListener('click', function () {
-            alert(`Le parent de ${member.prenom} ${member.nom} est l'ID ${member.parent_id}`);
-        });
-    }
-
-    const childrenButton = node.querySelector('.children-link');
-    if (childrenButton) {
-        childrenButton.addEventListener('click', function () {
-            alert(`Les enfants de ${member.prenom} ${member.nom} sont : ${member.children.map(child => child.prenom).join(', ')}`);
-        });
-    }
+    // Ajout de l'événement pour la suppression
+    const deleteButton = node.querySelector('.delete-button');
+    deleteButton.addEventListener('click', async () => {
+        if (confirm(`Voulez-vous vraiment supprimer ${member.prenom} ${member.nom} ?`)) {
+            await deletePerson(member.id);
+        }
+    });
 }
 
-// Supprimer un membre
+// Fonction pour supprimer un membre
 async function deletePerson(memberId) {
     try {
         const { error } = await supabase
@@ -137,7 +112,7 @@ async function deletePerson(memberId) {
     }
 }
 
-// Ajouter un nouveau membre
+// Gestion du formulaire d'ajout
 document.getElementById('addPersonForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -161,7 +136,7 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
             }
         }
 
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('members')
             .insert([
                 {
