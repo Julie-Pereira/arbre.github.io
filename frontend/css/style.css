@@ -99,6 +99,8 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
     position: relative;
+    visibility: visible; /* Assurez-vous que les nœuds sont visibles */
+    display: block; /* S'assurer qu'ils s'affichent sous forme de blocs */
 }
 
 /* Trait entre les parents et les enfants */
