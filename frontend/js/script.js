@@ -1,11 +1,10 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
 const supabaseUrl = 'https://uwqimphpkzcjinlucwwl.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cWltcGhwa3pjamlubHVjd3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMxMzA1ODcsImV4cCI6MjA0ODcwNjU4N30.IA-ZS1tu3FuUdrTioALpWuiJvgkkZRn4qX_ghcW4tXI';
-const supabase = createClient(CORS_PROXY + supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Charger l'arbre généalogique à l'initialisation
+// Charger l'arbre généalogique initialement
 window.onload = async function () {
     await loadTree();
 };
@@ -20,14 +19,15 @@ async function loadTree() {
         if (error) {
             console.error("Erreur lors du chargement des membres :", error);
         } else {
-            renderTree(data);
+            console.log("Membres chargés :", data); // Affiche les membres pour inspection
+            renderTree(data); // Appelle la fonction pour afficher l'arbre
         }
     } catch (error) {
         console.error("Erreur lors du chargement de l'arbre :", error);
     }
 }
 
-// Fonction pour afficher l'arbre généalogique
+// Afficher l'arbre généalogique
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = '';
@@ -54,63 +54,60 @@ function renderTree(members) {
     });
 }
 
-// Fonction pour créer un nœud HTML pour un membre et ses enfants
+// Afficher un nœud et ses enfants
 function renderNode(member, container, members) {
     const node = document.createElement('div');
     node.className = 'tree-node';
 
-    node.innerHTML = `
-        <div class="node-content">
-            <div class="person">
-                <div class="name">${member.prenom} ${member.nom}</div>
-                <div class="details">
-                    <span class="dob">${member.dob}</span>
-                    <span class="gender">${member.sexe}</span>
-                </div>
-                <button class="delete-button" data-member-id="${member.id}">Supprimer</button>
-            </div>
-        </div>
-    `;
-
-    container.appendChild(node);
-
-    // Afficher l'époux/épouse
+    // Affichage des parents et de leur relation
     if (member.spouse_id) {
         const spouse = members.find(p => p.id === member.spouse_id);
+        
         if (spouse) {
-            const spouseDiv = document.createElement('div');
-            spouseDiv.className = 'spouse-container';
-            spouseDiv.innerHTML = `
-                <div class="spouse">
-                    <p>Nom : ${spouse.prenom} ${spouse.nom}</p>
-                    <p>Sexe : ${spouse.sexe}</p>
+            const parentsContainer = document.createElement('div');
+            parentsContainer.className = 'parents';
+
+            // Ajouter les deux parents côte à côte
+            parentsContainer.innerHTML = `
+                <div class="parent">
+                    <p>${member.prenom} ${member.nom}</p>
+                </div>
+                <div class="parent">
+                    <p>${spouse.prenom} ${spouse.nom}</p>
                 </div>
             `;
-            node.appendChild(spouseDiv);
+            node.appendChild(parentsContainer);
         }
     }
 
-    // Conteneur pour les enfants
+    // Ajouter une ligne de connexion visuelle entre les parents et leurs enfants
+    if (member.spouse_id) {
+        const line = document.createElement('div');
+        line.className = 'parent-child-line';
+        node.appendChild(line);
+    }
+
+    // Affichage des enfants
     if (member.children && member.children.length > 0) {
         const childrenContainer = document.createElement('div');
         childrenContainer.className = 'children-container';
-        node.appendChild(childrenContainer);
 
         member.children.forEach(child => {
-            renderNode(child, childrenContainer, members); // Passer aussi members
+            const childNode = document.createElement('div');
+            childNode.className = 'child-node';
+            childNode.innerHTML = `<p>${child.prenom} ${child.nom}</p>`;
+            childrenContainer.appendChild(childNode);
+            renderNode(child, childrenContainer, members); // Recursion pour afficher les enfants
         });
+
+        node.appendChild(childrenContainer);
     }
 
-    // Ajout de l'événement pour la suppression
-    const deleteButton = node.querySelector('.delete-button');
-    deleteButton.addEventListener('click', async () => {
-        if (confirm(`Voulez-vous vraiment supprimer ${member.prenom} ${member.nom} ?`)) {
-            await deletePerson(member.id);
-        }
-    });
+    container.appendChild(node);
 }
 
-// Fonction pour supprimer un membre
+
+// Supprimer un membre
 async function deletePerson(memberId) {
     try {
         const { error } = await supabase
@@ -128,6 +125,53 @@ async function deletePerson(memberId) {
         console.error("Erreur lors de la suppression :", error);
     }
 }
+
+// Ajouter un nouveau membre
+document.getElementById('addPersonForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const firstName = document.getElementById('first-name').value;
+    const lastName = document.getElementById('last-name').value;
+    const gender = document.getElementById('gender').value;
+    const dob = document.getElementById('dob').value;
+    const parentId = document.getElementById('parent-id').value || null;
+
+    try {
+        if (parentId) {
+            const { data: parentData, error: parentError } = await supabase
+                .from('members')
+                .select('*')
+                .eq('id', parentId)
+                .single();
+
+            if (parentError || !parentData) {
+                alert("Le parent spécifié n'existe pas !");
+                return;
+            }
+        }
+
+        const { data, error } = await supabase
+            .from('members')
+            .insert([
+                {
+                    nom: lastName,
+                    prenom: firstName,
+                    sexe: gender,
+                    dob: dob,
+                    parent_id: parentId ? parseInt(parentId) : null
+                }
+            ]);
+
+        if (error) {
+            alert("Erreur lors de l'ajout : " + error.message);
+        } else {
+            alert("Personne ajoutée avec succès !");
+            await loadTree(); // Recharge l’arbre après ajout
+        }
+    } catch (error) {
+        console.error("Erreur lors de l'ajout :", error);
+    }
+});
 
 // Afficher le formulaire d'ajout
 document.getElementById('addPersonButton').addEventListener('click', function () {
