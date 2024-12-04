@@ -15,92 +15,59 @@
         <h1>Arbre Généalogique</h1>
     </div>
 
-    <!-- Conteneur du bouton Ajouter -->
-    <div class="add-person">
-        <button id="addPersonButton">Ajouter des Personnes</button>
-    </div>
+  <!-- Conteneur du bouton Ajouter -->
+  <div class="add-person">
+    <button id="addPersonButton">Ajouter des Personnes</button>
+</div>
 
-    <!-- Formulaire d'ajout de personne (initialement caché) -->
-    <div id="form-container" class="form-container" style="display: none;">
-        <form id="addPersonForm">
-            <label for="first-name">Prénom:</label>
-            <input type="text" id="first-name" required>
-            <br>
+<!-- Formulaire d'ajout de personne (initialement caché) -->
+<div id="form-container" class="form-container" style="display: none;">
+    <form id="addPersonForm">
+        <label for="first-name">Prénom:</label>
+        <input type="text" id="first-name" required>
+        <br>
 
-            <label for="last-name">Nom:</label>
-            <input type="text" id="last-name" required>
-            <br>
+        <label for="last-name">Nom:</label>
+        <input type="text" id="last-name" required>
+        <br>
 
-            <label for="gender">Sexe:</label>
-            <select id="gender">
-                <option value="homme">Homme</option>
-                <option value="femme">Femme</option>
-            </select>
-            <br>
+        <label for="gender">Sexe:</label>
+        <select id="gender">
+            <option value="homme">Homme</option>
+            <option value="femme">Femme</option>
+        </select>
+        <br>
 
-            <label for="dob">Date de naissance:</label>
-            <input type="date" id="dob" required>
-            <br>
+        <label for="dob">Date de naissance:</label>
+        <input type="date" id="dob" required>
+        <br>
 
-            <label for="parent-id">ID du parent (facultatif):</label>
-            <input type="number" id="parent-id">
-            <br>
+        <label for="parent-id">ID du parent (facultatif):</label>
+        <input type="number" id="parent-id">
+        <br>
 
-            <label for="spouse-id">ID du conjoint (facultatif):</label>
-            <input type="number" id="spouse-id">
-            <br>
+        <label for="spouse-id">ID du conjoint (facultatif):</label>
+        <input type="number" id="spouse-id">
+        <br>
 
-            <button type="submit">Ajouter</button>
-        </form>
-    </div>
+        <button type="submit">Ajouter</button>
+    </form>
+</div>
 
-    <div id="tree-container">
-        <!-- Parents -->
-        <div class="parents">
-            <div class="parent">
-                <div class="person">
-                    <span class="name">Marie</span>
-                    <div class="details">
-                        <span class="dob">née le 12/05/1980</span>
-                        <span class="role">Mère</span>
-                    </div>
-                </div>
-            </div>
-            <div class="parent">
-                <div class="person">
-                    <span class="name">Jean</span>
-                    <div class="details">
-                        <span class="dob">né le 15/09/1978</span>
-                        <span class="role">Père</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    
-        <!-- Lignes entre les parents et enfants -->
-        <div class="line-between-parents-children"></div>
-    
-        <!-- Enfants -->
-        <div class="children">
-            <div class="child">
-                <div class="person">
-                    <span class="name">Lucas</span>
-                    <div class="details">
-                        <span class="dob">né le 20/03/2010</span>
-                    </div>
-                </div>
-            </div>
-            <div class="child">
-                <div class="person">
-                    <span class="name">Sophie</span>
-                    <div class="details">
-                        <span class="dob">née le 10/07/2012</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Conteneur de l'arbre généalogique -->
+<div id="tree-container">
+    <!-- Parents -->
+    <div class="parents" id="parents-container"></div>
+
+    <!-- Ligne entre les parents et les enfants -->
+    <div class="line-between-parents-children" id="line-between-parents-children"></div>
+
+    <!-- Enfants -->
+    <div class="children" id="children-container"></div>
+</div>
 
     <script type="module" src="frontend/js/script.js"></script>
 </body>
 </html>
+
+

@@ -53,7 +53,6 @@ function renderTree(members) {
     });
 }
 
-
 // Fonction pour créer un nœud HTML pour un membre et ses enfants
 function renderNode(member, container, members) {
     const node = document.createElement('div');
@@ -109,7 +108,6 @@ function renderNode(member, container, members) {
         }
     });
 }
-
 
 // Fonction pour supprimer un membre
 async function deletePerson(memberId) {
