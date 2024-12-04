@@ -10,19 +10,6 @@ body {
     padding: 20px;
 }
 
-/* Header */
-.header {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-h1 {
-    font-size: 2.5rem;
-    color: #333;
-    font-weight: 700;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-}
-
 /* Conteneur de l'arbre généalogique */
 #tree-container {
     display: flex;
@@ -36,6 +23,7 @@ h1 {
     display: flex;
     justify-content: center;
     gap: 50px; /* Espacement entre les parents */
+    margin-bottom: 20px; /* Ajout d'un peu d'espace entre les parents et les enfants */
 }
 
 /* Chaque parent */
@@ -95,33 +83,4 @@ h1 {
 .details .dob {
     display: block;
     margin-bottom: 5px;
-}
-
-/* Bouton delete (facultatif) */
-button.delete {
-    background-color: #f44336;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-top: 10px;
-    transition: background-color 0.3s ease;
-}
-
-button.delete:hover {
-    background-color: #e53935;
-}
-
-/* Réactivité */
-@media (max-width: 768px) {
-    #tree-container {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .parents, .children {
-        flex-direction: column;
-    }
 }
