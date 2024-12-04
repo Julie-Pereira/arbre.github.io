@@ -16,6 +16,7 @@ async function loadTree() {
         if (error) {
             console.error("Erreur lors du chargement des membres :", error);
         } else {
+            debugData(data); // Optionnel : voir les données chargées pour debug
             renderTree(data);
         }
     } catch (error) {
@@ -23,10 +24,16 @@ async function loadTree() {
     }
 }
 
+// Fonction pour déboguer les données
+function debugData(members) {
+    console.log("Données chargées depuis la base :", members);
+}
+
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = ''; // Réinitialiser le contenu avant de le remplir
 
+    // Créer une map des membres pour les organiser en structure parent-enfant
     const memberMap = members.reduce((acc, member) => {
         acc[member.id] = { ...member, children: [] };
         return acc;
@@ -34,13 +41,18 @@ function renderTree(members) {
 
     // Organiser les membres en enfants de leurs parents
     members.forEach(member => {
-        if (member.parent_id && memberMap[member.parent_id]) {
-            memberMap[member.parent_id].children.push(memberMap[member.id]);
+        if (member.parent_id) {
+            const parent = memberMap[member.parent_id];
+            if (parent) {
+                parent.children.push(memberMap[member.id]); // Relie l'enfant au parent
+            } else {
+                console.warn(`Parent ID ${member.parent_id} manquant pour ${member.prenom} ${member.nom}`);
+            }
         }
     });
 
-    // Trouver les racines (membres sans parents)
-    const roots = members.filter(member => !member.parent_id);
+    // Trouver les racines (membres sans parents ou parents manquants)
+    const roots = members.filter(member => !member.parent_id || !memberMap[member.parent_id]);
 
     // Afficher les racines et leurs enfants
     roots.forEach(root => {
