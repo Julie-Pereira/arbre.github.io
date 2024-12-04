@@ -4,7 +4,7 @@ const supabaseUrl = 'https://uwqimphpkzcjinlucwwl.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cWltcGhwa3pjamlubHVjd3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMxMzA1ODcsImV4cCI6MjA0ODcwNjU4N30.IA-ZS1tu3FuUdrTioALpWuiJvgkkZRn4qX_ghcW4tXI';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Charger l'arbre généalogique initialement
+// Charger l'arbre généalogique à l'initialisation
 window.onload = async function () {
     await loadTree();
 };
@@ -19,15 +19,14 @@ async function loadTree() {
         if (error) {
             console.error("Erreur lors du chargement des membres :", error);
         } else {
-            console.log("Membres chargés :", data); // Affiche les membres pour inspection
-            renderTree(data); // Appelle la fonction pour afficher l'arbre
+            renderTree(data);
         }
     } catch (error) {
         console.error("Erreur lors du chargement de l'arbre :", error);
     }
 }
 
-// Afficher l'arbre généalogique
+// Fonction pour afficher l'arbre généalogique
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = '';
@@ -49,65 +48,70 @@ function renderTree(members) {
     // Ajouter les membres racines (sans parent) à l'arbre
     members.forEach(member => {
         if (!member.parent_id) {
-            renderNode(memberMap[member.id], treeContainer, members); // Passer aussi members
+            renderNode(memberMap[member.id], members, treeContainer);
         }
     });
 }
 
-// Afficher un nœud et ses enfants
-function renderNode(member, container, members) {
+// Fonction pour créer un nœud HTML pour un membre et ses enfants
+function renderNode(member, members, container) {
     const node = document.createElement('div');
     node.className = 'tree-node';
 
-    // Affichage des parents et de leur relation
+    node.innerHTML = `
+        <div class="node-content">
+            <div class="person">
+                <div class="name">${member.prenom} ${member.nom}</div>
+                <div class="details">
+                    <span class="dob">${member.dob}</span>
+                    <span class="gender">${member.sexe}</span>
+                </div>
+                <button class="delete-button" data-member-id="${member.id}">Supprimer</button>
+            </div>
+        </div>
+    `;
+
+    container.appendChild(node);
+
+    // Afficher l'époux/épouse
     if (member.spouse_id) {
         const spouse = members.find(p => p.id === member.spouse_id);
-        
         if (spouse) {
-            const parentsContainer = document.createElement('div');
-            parentsContainer.className = 'parents';
-
-            // Ajouter les deux parents côte à côte
-            parentsContainer.innerHTML = `
-                <div class="parent">
-                    <p>${member.prenom} ${member.nom}</p>
-                </div>
-                <div class="parent">
-                    <p>${spouse.prenom} ${spouse.nom}</p>
+            const spouseDiv = document.createElement('div');
+            spouseDiv.className = 'spouse-container';
+            spouseDiv.innerHTML = `
+                <div class="spouse">
+                    <p>Nom : ${spouse.prenom} ${spouse.nom}</p>
+                    <p>Sexe : ${spouse.sexe}</p>
                 </div>
             `;
-            node.appendChild(parentsContainer);
+            node.appendChild(spouseDiv);
         }
     }
 
-    // Ajouter une ligne de connexion visuelle entre les parents et leurs enfants
-    if (member.spouse_id) {
-        const line = document.createElement('div');
-        line.className = 'parent-child-line';
-        node.appendChild(line);
-    }
-
-    // Affichage des enfants
+    // Conteneur pour les enfants
     if (member.children && member.children.length > 0) {
         const childrenContainer = document.createElement('div');
         childrenContainer.className = 'children-container';
+        node.appendChild(childrenContainer);
 
         member.children.forEach(child => {
-            const childNode = document.createElement('div');
-            childNode.className = 'child-node';
-            childNode.innerHTML = `<p>${child.prenom} ${child.nom}</p>`;
-            childrenContainer.appendChild(childNode);
-            renderNode(child, childrenContainer, members); // Recursion pour afficher les enfants
+            renderNode(child, members, childrenContainer);
         });
-
-        node.appendChild(childrenContainer);
     }
 
-    container.appendChild(node);
+    // Ajout de l'événement pour la suppression
+    const deleteButton = node.querySelector('.delete-button');
+    if (deleteButton) {
+        deleteButton.addEventListener('click', async () => {
+            if (confirm(`Voulez-vous vraiment supprimer ${member.prenom} ${member.nom} ?`)) {
+                await deletePerson(member.id);
+            }
+        });
+    }
 }
 
-
-// Supprimer un membre
+// Fonction pour supprimer un membre
 async function deletePerson(memberId) {
     try {
         const { error } = await supabase
@@ -126,7 +130,7 @@ async function deletePerson(memberId) {
     }
 }
 
-// Ajouter un nouveau membre
+// Gestion du formulaire d'ajout
 document.getElementById('addPersonForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -135,6 +139,7 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
     const gender = document.getElementById('gender').value;
     const dob = document.getElementById('dob').value;
     const parentId = document.getElementById('parent-id').value || null;
+    const spouseId = document.getElementById('spouse-id').value || null; // Récupère l'ID du conjoint
 
     try {
         if (parentId) {
@@ -150,7 +155,8 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
             }
         }
 
-        const { data, error } = await supabase
+        // Insertion du membre dans la base de données
+        const { error } = await supabase
             .from('members')
             .insert([
                 {
@@ -158,7 +164,8 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
                     prenom: firstName,
                     sexe: gender,
                     dob: dob,
-                    parent_id: parentId ? parseInt(parentId) : null
+                    parent_id: parentId ? parseInt(parentId) : null,
+                    spouse_id: spouseId ? parseInt(spouseId) : null // Ajouter l'ID du conjoint
                 }
             ]);
 
