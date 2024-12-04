@@ -128,56 +128,6 @@ async function deletePerson(memberId) {
     }
 }
 
-// Gestion du formulaire d'ajout
-document.getElementById('addPersonForm').addEventListener('submit', async function (event) {
-    event.preventDefault();
-
-    const firstName = document.getElementById('first-name').value;
-    const lastName = document.getElementById('last-name').value;
-    const gender = document.getElementById('gender').value;
-    const dob = document.getElementById('dob').value;
-    const parentId = document.getElementById('parent-id').value || null;
-    const spouseId = document.getElementById('spouse-id').value || null; // Récupère l'ID du conjoint
-
-    try {
-        if (parentId) {
-            const { data: parentData, error: parentError } = await supabase
-                .from('members')
-                .select('*')
-                .eq('id', parentId)
-                .single();
-
-            if (parentError || !parentData) {
-                alert("Le parent spécifié n'existe pas !");
-                return;
-            }
-        }
-
-        // Insertion du membre dans la base de données
-        const { error } = await supabase
-            .from('members')
-            .insert([
-                {
-                    nom: lastName,
-                    prenom: firstName,
-                    sexe: gender,
-                    dob: dob,
-                    parent_id: parentId ? parseInt(parentId) : null,
-                    spouse_id: spouseId ? parseInt(spouseId) : null // Ajouter l'ID du conjoint
-                }
-            ]);
-
-        if (error) {
-            alert("Erreur lors de l'ajout : " + error.message);
-        } else {
-            alert("Personne ajoutée avec succès !");
-            await loadTree(); // Recharge l’arbre après ajout
-        }
-    } catch (error) {
-        console.error("Erreur lors de l'ajout :", error);
-    }
-});
-
 // Afficher le formulaire d'ajout
 document.getElementById('addPersonButton').addEventListener('click', function () {
     document.getElementById('form-container').style.display = 'block';
