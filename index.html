@@ -56,7 +56,61 @@
 
 
     <!-- Conteneur de l'arbre généalogique -->
-    <div id="tree-container"></div>
+    <div id="tree-container">
+        <!-- Couple de parents -->
+        <div class="parent-container">
+            <div class="tree-node parent">
+                <div class="node-content">
+                    <div class="person">
+                        <span class="name">Marie</span>
+                        <div class="details">
+                            <span class="dob">née le 12/05/1980</span>
+                            <span class="dob">Mère</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tree-node parent">
+                <div class="node-content">
+                    <div class="person">
+                        <span class="name">Jean</span>
+                        <div class="details">
+                            <span class="dob">né le 15/09/1978</span>
+                            <span class="dob">Père</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trait visuel entre les parents et les enfants -->
+        <div class="parent-child-line"></div>
+        
+        <!-- Enfants -->
+        <div class="children-container">
+            <div class="tree-node child-node">
+                <div class="node-content">
+                    <div class="person">
+                        <span class="name">Lucas</span>
+                        <div class="details">
+                            <span class="dob">né le 20/03/2010</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tree-node child-node">
+                <div class="node-content">
+                    <div class="person">
+                        <span class="name">Sophie</span>
+                        <div class="details">
+                            <span class="dob">née le 10/07/2012</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 
     <script type="module" src="frontend/js/script.js"></script>
 </body>
