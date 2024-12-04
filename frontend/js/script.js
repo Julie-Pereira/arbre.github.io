@@ -5,8 +5,11 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Charger l'arbre généalogique initialement
-window.onload = loadTree;
+window.onload = async function () {
+    await loadTree();
+};
 
+// Charger et afficher l'arbre généalogique
 async function loadTree() {
     try {
         const { data, error } = await supabase
@@ -16,19 +19,15 @@ async function loadTree() {
         if (error) {
             console.error("Erreur lors du chargement des membres :", error);
         } else {
-            debugData(data); // Optionnel : voir les données chargées pour debug
-            renderTree(data);
+            console.log("Membres chargés :", data); // Affiche les membres pour inspection
+            renderTree(data); // Appelle la fonction pour afficher l'arbre
         }
     } catch (error) {
         console.error("Erreur lors du chargement de l'arbre :", error);
     }
 }
 
-// Fonction pour déboguer les données
-function debugData(members) {
-    console.log("Données chargées depuis la base :", members);
-}
-
+// Afficher l'arbre généalogique
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = ''; // Réinitialiser le contenu avant de le remplir
@@ -42,24 +41,25 @@ function renderTree(members) {
     // Organiser les membres en enfants de leurs parents
     members.forEach(member => {
         if (member.parent_id) {
-            const parent = memberMap[member.parent_id];
-            if (parent) {
-                parent.children.push(memberMap[member.id]); // Relie l'enfant au parent
+            if (memberMap[member.parent_id]) {
+                memberMap[member.parent_id].children.push(memberMap[member.id]); // Relie l'enfant au parent
             } else {
                 console.warn(`Parent ID ${member.parent_id} manquant pour ${member.prenom} ${member.nom}`);
             }
         }
     });
 
-    // Trouver les racines (membres sans parents ou parents manquants)
-    const roots = members.filter(member => !member.parent_id || !memberMap[member.parent_id]);
+    console.log("Membres organisés avec relations parent-enfant :", memberMap);
 
-    // Afficher les racines et leurs enfants
-    roots.forEach(root => {
-        renderNode(root, treeContainer);
+    // Afficher tous les nœuds en partant des racines
+    members.forEach(member => {
+        if (!member.parent_id || !memberMap[member.parent_id]) {
+            renderNode(memberMap[member.id], treeContainer);
+        }
     });
 }
 
+// Afficher un nœud et ses enfants
 function renderNode(member, container) {
     const node = document.createElement('div');
     node.className = 'tree-node';
@@ -74,19 +74,19 @@ function renderNode(member, container) {
         </div>
         <div class="links">
             ${member.parent_id ? `<button class="parent-link" data-parent-id="${member.parent_id}">Voir les parents</button>` : ''}
-            ${member.children && member.children.length > 0 ? `<button class="children-link" data-member-id="${member.id}">Voir les enfants</button>` : ''}
+            ${member.children.length > 0 ? `<button class="children-link" data-member-id="${member.id}">Voir les enfants</button>` : ''}
         </div>
     `;
 
     container.appendChild(node);
 
     // Si le membre a des enfants, les afficher
-    if (member.children && member.children.length > 0) {
+    if (member.children.length > 0) {
         const childrenContainer = document.createElement('div');
         childrenContainer.className = 'children-container';
 
         member.children.forEach(child => {
-            renderNode(child, childrenContainer);
+            renderNode(child, childrenContainer); // Appel récursif pour chaque enfant
         });
 
         container.appendChild(childrenContainer);
@@ -118,24 +118,9 @@ function renderNode(member, container) {
     }
 }
 
+// Supprimer un membre
 async function deletePerson(memberId) {
     try {
-        // Supprimer récursivement les enfants d'un membre
-        const { data: children, error: childrenError } = await supabase
-            .from('members')
-            .select('*')
-            .eq('parent_id', memberId);
-
-        if (childrenError) {
-            alert("Erreur lors de la récupération des enfants : " + childrenError.message);
-            return;
-        }
-
-        for (const child of children) {
-            await deletePerson(child.id); // Suppression récursive
-        }
-
-        // Supprimer le membre
         const { error } = await supabase
             .from('members')
             .delete()
@@ -145,14 +130,14 @@ async function deletePerson(memberId) {
             alert("Erreur lors de la suppression : " + error.message);
         } else {
             alert("Membre supprimé avec succès !");
-            loadTree(); // Recharge tout l'arbre après suppression
+            await loadTree(); // Recharge l’arbre après suppression
         }
     } catch (error) {
         console.error("Erreur lors de la suppression :", error);
     }
 }
 
-// Ajout d'une nouvelle personne
+// Ajouter un nouveau membre
 document.getElementById('addPersonForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -176,7 +161,7 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
             }
         }
 
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('members')
             .insert([
                 {
@@ -192,7 +177,7 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
             alert("Erreur lors de l'ajout : " + error.message);
         } else {
             alert("Personne ajoutée avec succès !");
-            loadTree(); // Recharge l'arbre après ajout
+            await loadTree(); // Recharge l’arbre après ajout
         }
     } catch (error) {
         console.error("Erreur lors de l'ajout :", error);
