@@ -48,13 +48,14 @@ function renderTree(members) {
     // Ajouter les membres racines (sans parent) à l'arbre
     members.forEach(member => {
         if (!member.parent_id) {
-            renderNode(memberMap[member.id], members, treeContainer);
+            renderNode(memberMap[member.id], treeContainer, members); // Passer aussi members
         }
     });
 }
 
+
 // Fonction pour créer un nœud HTML pour un membre et ses enfants
-function renderNode(member, members, container) {
+function renderNode(member, container, members) {
     const node = document.createElement('div');
     node.className = 'tree-node';
 
@@ -96,20 +97,19 @@ function renderNode(member, members, container) {
         node.appendChild(childrenContainer);
 
         member.children.forEach(child => {
-            renderNode(child, members, childrenContainer);
+            renderNode(child, childrenContainer, members); // Passer aussi members
         });
     }
 
     // Ajout de l'événement pour la suppression
     const deleteButton = node.querySelector('.delete-button');
-    if (deleteButton) {
-        deleteButton.addEventListener('click', async () => {
-            if (confirm(`Voulez-vous vraiment supprimer ${member.prenom} ${member.nom} ?`)) {
-                await deletePerson(member.id);
-            }
-        });
-    }
+    deleteButton.addEventListener('click', async () => {
+        if (confirm(`Voulez-vous vraiment supprimer ${member.prenom} ${member.nom} ?`)) {
+            await deletePerson(member.id);
+        }
+    });
 }
+
 
 // Fonction pour supprimer un membre
 async function deletePerson(memberId) {
