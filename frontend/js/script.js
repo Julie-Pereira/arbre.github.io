@@ -61,13 +61,13 @@ function renderTree(members) {
         .attr('flood-color', '#555');
 
     const treeLayout = d3.tree().size([width - 200, height - 200]);
-    const hierarchyData = d3.hierarchy(root, d => d.children); // Passer les enfants avec la fonction ici.
+    const hierarchyData = d3.hierarchy(root, d => d.children); // Passer les enfants ici.
 
     treeLayout(hierarchyData);
 
     const g = svg.append('g').attr('transform', 'translate(100,100)');
 
-    // Afficher les liens
+    // Dessiner les liens
     g.selectAll('.link')
         .data(hierarchyData.links())
         .enter()
@@ -95,35 +95,24 @@ function renderTree(members) {
         .style('stroke-width', 2)
         .style('filter', 'url(#shadow)');
 
-    // Afficher le nom
+    // Texte à l'intérieur du cercle
     node.append('text')
-        .attr('dy', -40)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '12px')
+        .attr('text-anchor', 'middle') // Centré horizontalement
+        .attr('dy', '0.35em')         // Centré verticalement
+        .style('font-size', '10px')
         .style('font-weight', 'bold')
-        .text(d => `${d.data.prenom} ${d.data.nom}`);
+        .style('fill', '#333')
+        .text(d => `${d.data.prenom}`);
 
-    // Afficher l'ID et la date de naissance
+    // Texte supplémentaire sous le cercle
     node.append('text')
-        .attr('dy', 50)
+        .attr('dy', 45)
         .attr('text-anchor', 'middle')
         .style('font-size', '10px')
         .style('fill', '#555')
-        .text(d => `ID: ${d.data.id}, Naissance: ${d.data.dob}`);
-
-    // Afficher le lien parent
-    node.append('text')
-        .attr('dy', 70)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '10px')
-        .style('fill', '#777')
-        .text(d => {
-            const relations = [];
-            if (d.data.parent_id) relations.push(`Parent: ${d.data.parent_id}`);
-            if (d.data.spouse_id) relations.push(`Conjoint: ${d.data.spouse_id}`);
-            return relations.join(' | ');
-        });
+        .text(d => `${d.data.nom} (${d.data.dob})`);
 }
+
 
 
 // Fonction pour supprimer un membre
