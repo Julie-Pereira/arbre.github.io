@@ -89,29 +89,30 @@ function renderTree(members) {
 
     // Dessiner les cercles avec filtre
     node.append('circle')
-        .attr('r', 30)
+        .attr('r', 40) // Augmenter le rayon pour plus d'espace
         .style('fill', d => d.data.sexe === 'femme' ? '#ffb6c1' : '#add8e6')
         .style('stroke', '#333')
         .style('stroke-width', 2)
         .style('filter', 'url(#shadow)');
 
-    // Texte à l'intérieur du cercle
+    // Texte à l'intérieur des cercles
     node.append('text')
         .attr('text-anchor', 'middle') // Centré horizontalement
-        .attr('dy', '0.35em')         // Centré verticalement
         .style('font-size', '10px')
-        .style('font-weight', 'bold')
-        .style('fill', '#333')
-        .text(d => `${d.data.prenom}`);
-
-    // Texte supplémentaire sous le cercle
-    node.append('text')
-        .attr('dy', 45)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '10px')
-        .style('fill', '#555')
-        .text(d => `${d.data.nom} (${d.data.dob})`);
+        .style('font-family', 'Arial')
+        .selectAll('tspan') // Utiliser plusieurs lignes dans le cercle
+        .data(d => [
+            `ID: ${d.data.id}`,                // Ligne 1 : ID
+            `${d.data.prenom} ${d.data.nom}`,  // Ligne 2 : Prénom Nom
+            `${d.data.dob}`                    // Ligne 3 : Date de naissance
+        ])
+        .enter()
+        .append('tspan')
+        .attr('x', 0)  // Centré horizontalement
+        .attr('dy', (d, i) => i === 0 ? '0.6em' : '1.2em') // Espacement vertical entre les lignes
+        .text(d => d); // Ajouter le texte
 }
+
 
 
 
