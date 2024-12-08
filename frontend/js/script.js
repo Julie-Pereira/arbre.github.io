@@ -61,7 +61,7 @@ function renderTree(members) {
         .attr('flood-color', '#555');
 
     const treeLayout = d3.tree().size([width - 200, height - 200]);
-    const hierarchyData = d3.hierarchy(root, d => d.children); // Passer les enfants ici.
+    const hierarchyData = d3.hierarchy(root, d => d.children);
 
     treeLayout(hierarchyData);
 
@@ -87,9 +87,34 @@ function renderTree(members) {
         .classed('node', true)
         .attr('transform', d => `translate(${d.x},${d.y})`);
 
-    // Dessiner les cercles avec filtre
+    // Calculer la largeur maximale pour adapter la taille du cercle
+    node.each(function (d) {
+        const lines = [
+            `ID: ${d.data.id}`,
+            `${d.data.prenom} ${d.data.nom}`,
+            d.data.dob
+        ];
+
+        // Crée temporairement un élément texte pour mesurer la largeur
+        const textWidths = lines.map(line => {
+            const tempText = d3.select(this)
+                .append('text')
+                .style('font-size', '12px')
+                .style('font-family', 'Arial')
+                .text(line);
+
+            const width = tempText.node().getBBox().width; // Obtenir la largeur
+            tempText.remove(); // Nettoyer après mesure
+            return width;
+        });
+
+        // Déterminer la largeur maximale du texte
+        d.maxTextWidth = Math.max(...textWidths);
+    });
+
+    // Dessiner les cercles dynamiques
     node.append('circle')
-        .attr('r', 40) // Rayon du cercle
+        .attr('r', d => Math.max(40, d.maxTextWidth / 2 + 10)) // Rayon basé sur la largeur du texte
         .style('fill', d => d.data.sexe === 'femme' ? '#ffb6c1' : '#add8e6')
         .style('stroke', '#333')
         .style('stroke-width', 2)
@@ -102,22 +127,20 @@ function renderTree(members) {
         .style('font-family', 'Arial')
         .selectAll('tspan')
         .data(d => {
-            // Générer dynamiquement les lignes de texte
             const lines = [
-                `ID: ${d.data.id}`,                // Ligne 1 : ID
-                `${d.data.prenom} ${d.data.nom}`,  // Ligne 2 : Prénom et Nom
-                `${d.data.dob}`                    // Ligne 3 : Date de naissance
+                `ID: ${d.data.id}`,
+                `${d.data.prenom} ${d.data.nom}`,
+                `${d.data.dob}`
             ];
             return lines;
         })
         .enter()
         .append('tspan')
-        .attr('x', 0)  // Centré horizontalement
+        .attr('x', 0) // Centré horizontalement
         .attr('dy', (d, i, nodes) => {
-            // Centrer dynamiquement les lignes dans le cercle
-            const lineCount = nodes.length; // Nombre total de lignes
-            const offset = (lineCount - 1) * -0.6; // Déterminer le décalage initial
-            return `${offset + i * 1.2}em`; // Espacer les lignes dynamiquement
+            const lineCount = nodes.length; // Nombre de lignes
+            const offset = (lineCount - 1) * -0.6; // Calculer le décalage
+            return `${offset + i * 1.2}em`; // Ajustement dynamique
         })
         .text(d => d); // Ajouter le texte
 }
