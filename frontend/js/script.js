@@ -50,6 +50,17 @@ function renderTree(members) {
         .attr('width', width)
         .attr('height', height);
 
+    // Ajout de la définition pour l'ombre
+    const defs = svg.append('defs');
+
+    defs.append('filter')
+        .attr('id', 'shadow')
+        .append('feDropShadow')
+        .attr('dx', 2)
+        .attr('dy', 2)
+        .attr('stdDeviation', 3)
+        .attr('flood-color', '#555');
+
     const treeLayout = d3.tree().size([width - 200, height - 200]);
     const hierarchyData = d3.hierarchy(root);
 
@@ -57,7 +68,7 @@ function renderTree(members) {
 
     const g = svg.append('g').attr('transform', 'translate(100,100)');
 
-    // Création de liens entre les nœuds
+    // Liens entre les nœuds
     g.selectAll('.link')
         .data(hierarchyData.links())
         .enter()
@@ -70,7 +81,6 @@ function renderTree(members) {
         .style('stroke', '#555')
         .style('stroke-width', 3);
 
-    // Création des nœuds
     const node = g.selectAll('.node')
         .data(hierarchyData.descendants())
         .enter()
@@ -78,6 +88,7 @@ function renderTree(members) {
         .classed('node', true)
         .attr('transform', d => `translate(${d.x},${d.y})`);
 
+    // Ajout du rectangle avec filtre
     node.append('rect')
         .attr('width', 60)
         .attr('height', 60)
@@ -88,6 +99,7 @@ function renderTree(members) {
         .style('stroke-width', 1)
         .style('filter', 'url(#shadow)');
 
+    // Texte pour chaque nœud
     node.append('text')
         .attr('dy', -40)
         .attr('text-anchor', 'middle')
@@ -95,17 +107,6 @@ function renderTree(members) {
         .style('font-weight', 'bold')
         .text(d => `${d.data.prenom} ${d.data.nom}`);
 }
-
-const defs = svg.append('defs');
-
-defs.append('filter')
-    .attr('id', 'shadow')
-    .append('feDropShadow')
-    .attr('dx', 2)
-    .attr('dy', 2)
-    .attr('stdDeviation', 3)
-    .attr('flood-color', '#555');
-
 
 // Fonction pour supprimer un membre
 async function deletePerson(memberId) {
