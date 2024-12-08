@@ -118,13 +118,18 @@ input:focus, select:focus {
     background-color: #45a049;
 }
 
-/* Ajustement pour l'arbre dynamique */
 #tree-container {
-    overflow-x: auto;
-    padding: 10px;
-    border: 1px solid #ddd;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
+    background-image: url('path/to/your/background-image.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%;
+    height: 800px; 
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  
 
 /* Assurez-vous que les nœuds sont bien espacés */
 .tree-node circle {
@@ -229,27 +234,7 @@ button.delete:hover {
     background-color: #e53935;
 }
 
-/* Réactivité */
-@media (max-width: 768px) {
-    #tree-container {
-        flex-direction: column;
-        gap: 15px;
-    }
 
-    .tree-node {
-        width: 100%;
-    }
-
-    .children-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .child-node {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-}
 
 /* Conteneur pour les époux/épouses */
 .spouse-container {

@@ -27,7 +27,7 @@ async function loadTree() {
 
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
-    treeContainer.innerHTML = ''; // Réinitialise le conteneur
+    treeContainer.innerHTML = '';
 
     const memberMap = members.reduce((acc, member) => {
         acc[member.id] = { ...member, children: [] };
@@ -42,7 +42,6 @@ function renderTree(members) {
 
     const root = members.filter(member => !member.parent_id).map(member => memberMap[member.id])[0];
 
-    // Définir les dimensions de l'arbre
     const width = 1000;
     const height = 600;
 
@@ -52,14 +51,13 @@ function renderTree(members) {
         .attr('height', height);
 
     const treeLayout = d3.tree().size([width - 200, height - 200]);
-
     const hierarchyData = d3.hierarchy(root);
 
     treeLayout(hierarchyData);
 
     const g = svg.append('g').attr('transform', 'translate(100,100)');
 
-    // Liens entre les nœuds
+    // Création de liens entre les nœuds
     g.selectAll('.link')
         .data(hierarchyData.links())
         .enter()
@@ -69,10 +67,10 @@ function renderTree(members) {
         .attr('y1', d => d.source.y)
         .attr('x2', d => d.target.x)
         .attr('y2', d => d.target.y)
-        .style('stroke', '#ccc')
-        .style('stroke-width', 2);
+        .style('stroke', '#555')
+        .style('stroke-width', 3);
 
-    // Nœuds
+    // Création des nœuds
     const node = g.selectAll('.node')
         .data(hierarchyData.descendants())
         .enter()
@@ -80,42 +78,33 @@ function renderTree(members) {
         .classed('node', true)
         .attr('transform', d => `translate(${d.x},${d.y})`);
 
-    // Cercles pour chaque nœud
-    node.append('circle')
-        .attr('r', 30)
+    node.append('rect')
+        .attr('width', 60)
+        .attr('height', 60)
+        .attr('x', -30)
+        .attr('y', -30)
         .style('fill', d => d.data.sexe === 'femme' ? '#ffb6c1' : '#add8e6')
         .style('stroke', '#333')
-        .style('stroke-width', 2);
+        .style('stroke-width', 1)
+        .style('filter', 'url(#shadow)');
 
-    // Texte pour chaque nœud
     node.append('text')
         .attr('dy', -40)
         .attr('text-anchor', 'middle')
         .style('font-size', '12px')
-        .style('font-family', 'Arial')
+        .style('font-weight', 'bold')
         .text(d => `${d.data.prenom} ${d.data.nom}`);
-
-    // Affichage des détails (ID, date de naissance)
-    node.append('text')
-        .attr('dy', 50)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '10px')
-        .style('fill', '#555')
-        .text(d => `ID: ${d.data.id}, Naissance: ${d.data.dob}`);
-
-    // Relations
-    node.append('text')
-        .attr('dy', 70)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '10px')
-        .style('fill', '#777')
-        .text(d => {
-            const relations = [];
-            if (d.data.parent_id) relations.push(`Père/Mère: ${d.data.parent_id}`);
-            if (d.data.spouse_id) relations.push(`Conjoint: ${d.data.spouse_id}`);
-            return relations.join(' | ');
-        });
 }
+
+const defs = svg.append('defs');
+
+defs.append('filter')
+    .attr('id', 'shadow')
+    .append('feDropShadow')
+    .attr('dx', 2)
+    .attr('dy', 2)
+    .attr('stdDeviation', 3)
+    .attr('flood-color', '#555');
 
 
 // Fonction pour supprimer un membre
