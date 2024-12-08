@@ -50,7 +50,6 @@ function renderTree(members) {
         .attr('width', width)
         .attr('height', height);
 
-    // Ajout de la définition pour l'ombre
     const defs = svg.append('defs');
 
     defs.append('filter')
@@ -62,13 +61,13 @@ function renderTree(members) {
         .attr('flood-color', '#555');
 
     const treeLayout = d3.tree().size([width - 200, height - 200]);
-    const hierarchyData = d3.hierarchy(root);
+    const hierarchyData = d3.hierarchy(root, d => d.children); // Passer les enfants avec la fonction ici.
 
     treeLayout(hierarchyData);
 
     const g = svg.append('g').attr('transform', 'translate(100,100)');
 
-    // Liens entre les nœuds
+    // Afficher les liens
     g.selectAll('.link')
         .data(hierarchyData.links())
         .enter()
@@ -88,25 +87,44 @@ function renderTree(members) {
         .classed('node', true)
         .attr('transform', d => `translate(${d.x},${d.y})`);
 
-    // Ajout du rectangle avec filtre
-    node.append('rect')
-        .attr('width', 60)
-        .attr('height', 60)
-        .attr('x', -30)
-        .attr('y', -30)
+    // Dessiner les cercles avec filtre
+    node.append('circle')
+        .attr('r', 30)
         .style('fill', d => d.data.sexe === 'femme' ? '#ffb6c1' : '#add8e6')
         .style('stroke', '#333')
-        .style('stroke-width', 1)
+        .style('stroke-width', 2)
         .style('filter', 'url(#shadow)');
 
-    // Texte pour chaque nœud
+    // Afficher le nom
     node.append('text')
         .attr('dy', -40)
         .attr('text-anchor', 'middle')
         .style('font-size', '12px')
         .style('font-weight', 'bold')
         .text(d => `${d.data.prenom} ${d.data.nom}`);
+
+    // Afficher l'ID et la date de naissance
+    node.append('text')
+        .attr('dy', 50)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '10px')
+        .style('fill', '#555')
+        .text(d => `ID: ${d.data.id}, Naissance: ${d.data.dob}`);
+
+    // Afficher le lien parent
+    node.append('text')
+        .attr('dy', 70)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '10px')
+        .style('fill', '#777')
+        .text(d => {
+            const relations = [];
+            if (d.data.parent_id) relations.push(`Parent: ${d.data.parent_id}`);
+            if (d.data.spouse_id) relations.push(`Conjoint: ${d.data.spouse_id}`);
+            return relations.join(' | ');
+        });
 }
+
 
 // Fonction pour supprimer un membre
 async function deletePerson(memberId) {
