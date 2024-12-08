@@ -1,4 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7/+esm';
 
 const supabaseUrl = 'https://uwqimphpkzcjinlucwwl.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cWltcGhwa3pjamlubHVjd3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMxMzA1ODcsImV4cCI6MjA0ODcwNjU4N30.IA-ZS1tu3FuUdrTioALpWuiJvgkkZRn4qX_ghcW4tXI';
@@ -12,9 +13,7 @@ window.onload = async function () {
 // Charger et afficher l'arbre généalogique
 async function loadTree() {
     try {
-        const { data, error } = await supabase
-            .from('members')
-            .select('*');
+        const { data, error } = await supabase.from('members').select('*');
 
         if (error) {
             console.error("Erreur lors du chargement des membres :", error);
@@ -26,98 +25,97 @@ async function loadTree() {
     }
 }
 
-// Fonction pour afficher l'arbre généalogique
+// Fonction pour afficher l'arbre généalogique avec D3.js
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
-    treeContainer.innerHTML = '';
+    treeContainer.innerHTML = ''; // Réinitialise le conteneur
 
-    // Organisation des membres en parent-enfant
+    // Structure hiérarchique pour D3
     const memberMap = members.reduce((acc, member) => {
         acc[member.id] = { ...member, children: [] };
         return acc;
     }, {});
 
     members.forEach(member => {
-        if (member.parent_id) {
-            if (memberMap[member.parent_id]) {
-                memberMap[member.parent_id].children.push(memberMap[member.id]);
-            }
+        if (member.parent_id && memberMap[member.parent_id]) {
+            memberMap[member.parent_id].children.push(memberMap[member.id]);
         }
     });
 
-    // Ajouter les membres racines (sans parent) à l'arbre
-    members.forEach(member => {
-        if (!member.parent_id) {
-            renderNode(memberMap[member.id], members, treeContainer);
-        }
-    });
-}
+    const root = members.filter(member => !member.parent_id).map(member => memberMap[member.id])[0];
 
-// Fonction pour créer un nœud HTML pour un membre et ses enfants
-function renderNode(member, members, container) {
-    const node = document.createElement('div');
-    node.className = 'tree-node';
+    // Définir les dimensions de l'arbre
+    const width = 800;
+    const height = 600;
 
-    node.innerHTML = `
-        <div class="node-content">
-            <div class="person">
-                <div class="name">${member.prenom} ${member.nom}</div>
-                <div class="details">
-                    <span class="dob">${member.dob}</span>
-                    <span class="gender">${member.sexe}</span>
-                </div>
-                <button class="delete-button" data-member-id="${member.id}">Supprimer</button>
-            </div>
-        </div>
-    `;
+    const svg = d3.select(treeContainer)
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
 
-    container.appendChild(node);
+    const treeLayout = d3.tree().size([width - 200, height - 200]);
 
-    // Afficher l'époux/épouse
-    if (member.spouse_id) {
-        const spouse = members.find(p => p.id === member.spouse_id);
-        if (spouse) {
-            const spouseDiv = document.createElement('div');
-            spouseDiv.className = 'spouse-container';
-            spouseDiv.innerHTML = `
-                <div class="spouse">
-                    <p>Nom : ${spouse.prenom} ${spouse.nom}</p>
-                    <p>Sexe : ${spouse.sexe}</p>
-                </div>
-            `;
-            node.appendChild(spouseDiv);
-        }
-    }
+    const hierarchyData = d3.hierarchy(root);
 
-    // Conteneur pour les enfants
-    if (member.children && member.children.length > 0) {
-        const childrenContainer = document.createElement('div');
-        childrenContainer.className = 'children-container';
-        node.appendChild(childrenContainer);
+    treeLayout(hierarchyData);
 
-        member.children.forEach(child => {
-            renderNode(child, members, childrenContainer);
-        });
-    }
+    const g = svg.append('g').attr('transform', 'translate(100,100)');
 
-    // Ajout de l'événement pour la suppression
-    const deleteButton = node.querySelector('.delete-button');
-    if (deleteButton) {
-        deleteButton.addEventListener('click', async () => {
-            if (confirm(`Voulez-vous vraiment supprimer ${member.prenom} ${member.nom} ?`)) {
-                await deletePerson(member.id);
+    // Liens entre les nœuds
+    g.selectAll('.link')
+        .data(hierarchyData.links())
+        .enter()
+        .append('line')
+        .classed('link', true)
+        .attr('x1', d => d.source.x)
+        .attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x)
+        .attr('y2', d => d.target.y)
+        .style('stroke', '#ccc')
+        .style('stroke-width', 2);
+
+    // Nœuds
+    const node = g.selectAll('.node')
+        .data(hierarchyData.descendants())
+        .enter()
+        .append('g')
+        .classed('node', true)
+        .attr('transform', d => `translate(${d.x},${d.y})`);
+
+    // Cercles pour chaque nœud
+    node.append('circle')
+        .attr('r', 20)
+        .style('fill', d => d.data.sexe === 'femme' ? '#ffb6c1' : '#add8e6')
+        .style('stroke', '#333')
+        .style('stroke-width', 2);
+
+    // Texte pour chaque nœud
+    node.append('text')
+        .attr('dy', -30)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '12px')
+        .style('font-family', 'Arial')
+        .text(d => `${d.data.prenom} ${d.data.nom}`);
+
+    // Boutons pour suppression
+    node.append('text')
+        .attr('dy', 40)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '10px')
+        .style('cursor', 'pointer')
+        .style('fill', 'red')
+        .text('Supprimer')
+        .on('click', async (event, d) => {
+            if (confirm(`Voulez-vous vraiment supprimer ${d.data.prenom} ${d.data.nom} ?`)) {
+                await deletePerson(d.data.id);
             }
         });
-    }
 }
 
 // Fonction pour supprimer un membre
 async function deletePerson(memberId) {
     try {
-        const { error } = await supabase
-            .from('members')
-            .delete()
-            .eq('id', memberId);
+        const { error } = await supabase.from('members').delete().eq('id', memberId);
 
         if (error) {
             alert("Erreur lors de la suppression : " + error.message);
@@ -139,42 +137,20 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
     const gender = document.getElementById('gender').value;
     const dob = document.getElementById('dob').value;
     const parentId = document.getElementById('parent-id').value || null;
-    const spouseId = document.getElementById('spouse-id').value || null; // Récupère l'ID du conjoint
 
     try {
-        if (parentId) {
-            const { data: parentData, error: parentError } = await supabase
-                .from('members')
-                .select('*')
-                .eq('id', parentId)
-                .single();
-
-            if (parentError || !parentData) {
-                alert("Le parent spécifié n'existe pas !");
-                return;
+        await supabase.from('members').insert([
+            {
+                prenom: firstName,
+                nom: lastName,
+                sexe: gender,
+                dob: dob,
+                parent_id: parentId ? parseInt(parentId) : null,
             }
-        }
+        ]);
 
-        // Insertion du membre dans la base de données
-        const { error } = await supabase
-            .from('members')
-            .insert([
-                {
-                    nom: lastName,
-                    prenom: firstName,
-                    sexe: gender,
-                    dob: dob,
-                    parent_id: parentId ? parseInt(parentId) : null,
-                    spouse_id: spouseId ? parseInt(spouseId) : null // Ajouter l'ID du conjoint
-                }
-            ]);
-
-        if (error) {
-            alert("Erreur lors de l'ajout : " + error.message);
-        } else {
-            alert("Personne ajoutée avec succès !");
-            await loadTree(); // Recharge l’arbre après ajout
-        }
+        alert("Personne ajoutée avec succès !");
+        await loadTree(); // Recharge l’arbre après ajout
     } catch (error) {
         console.error("Erreur lors de l'ajout :", error);
     }
