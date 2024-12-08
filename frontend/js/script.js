@@ -89,32 +89,38 @@ function renderTree(members) {
 
     // Dessiner les cercles avec filtre
     node.append('circle')
-        .attr('r', 40) // Augmenter le rayon pour plus d'espace
+        .attr('r', 40) // Rayon du cercle
         .style('fill', d => d.data.sexe === 'femme' ? '#ffb6c1' : '#add8e6')
         .style('stroke', '#333')
         .style('stroke-width', 2)
         .style('filter', 'url(#shadow)');
 
-    // Texte à l'intérieur des cercles
+    // Texte à l'intérieur des cercles (centré dynamiquement)
     node.append('text')
         .attr('text-anchor', 'middle') // Centré horizontalement
         .style('font-size', '10px')
         .style('font-family', 'Arial')
-        .selectAll('tspan') // Utiliser plusieurs lignes dans le cercle
-        .data(d => [
-            `ID: ${d.data.id}`,                // Ligne 1 : ID
-            `${d.data.prenom} ${d.data.nom}`,  // Ligne 2 : Prénom Nom
-            `${d.data.dob}`                    // Ligne 3 : Date de naissance
-        ])
+        .selectAll('tspan')
+        .data(d => {
+            // Générer dynamiquement les lignes de texte
+            const lines = [
+                `ID: ${d.data.id}`,                // Ligne 1 : ID
+                `${d.data.prenom} ${d.data.nom}`,  // Ligne 2 : Prénom et Nom
+                `${d.data.dob}`                    // Ligne 3 : Date de naissance
+            ];
+            return lines;
+        })
         .enter()
         .append('tspan')
         .attr('x', 0)  // Centré horizontalement
-        .attr('dy', (d, i) => i === 0 ? '0.6em' : '1.2em') // Espacement vertical entre les lignes
+        .attr('dy', (d, i, nodes) => {
+            // Centrer dynamiquement les lignes dans le cercle
+            const lineCount = nodes.length; // Nombre total de lignes
+            const offset = (lineCount - 1) * -0.6; // Déterminer le décalage initial
+            return `${offset + i * 1.2}em`; // Espacer les lignes dynamiquement
+        })
         .text(d => d); // Ajouter le texte
 }
-
-
-
 
 // Fonction pour supprimer un membre
 async function deletePerson(memberId) {
