@@ -118,36 +118,28 @@ input:focus, select:focus {
     background-color: #45a049;
 }
 
-/* Conteneur de l'arbre généalogique */
+/* Ajustement pour l'arbre dynamique */
 #tree-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
+    overflow-x: auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* Style des nœuds de l'arbre */
-.tree-node {
-    background-color: white;
-    margin: 10px;
-    padding: 15px;
-    border-radius: 8px;
-    width: 250px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    position: relative;
+/* Assurez-vous que les nœuds sont bien espacés */
+.tree-node circle {
+    transition: transform 0.2s ease;
 }
 
-/* Lien visuel entre les nœuds */
-.tree-node::before {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    width: 2px;
-    height: 10px;
-    background-color: #ddd;
-    transform: translateX(-50%);
+.tree-node:hover circle {
+    transform: scale(1.2);
+}
+
+/* Ajustement pour le texte dans chaque nœud */
+.node text {
+    font-size: 12px;
+    fill: #333;
+    text-anchor: middle;
 }
 
 /* Parents et enfants */
@@ -168,12 +160,9 @@ input:focus, select:focus {
     min-width: 120px;
 }
 
-/* Lien visuel entre les parents et les enfants */
+/* Ajout de style pour améliorer l'interaction avec les relations */
 .parent-child-line {
-    width: 2px;
-    background-color: #ddd;
-    height: 20px;
-    margin: 0 auto;
+    transition: height 0.3s ease;
 }
 
 /* Conteneur pour les enfants */

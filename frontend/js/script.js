@@ -25,12 +25,10 @@ async function loadTree() {
     }
 }
 
-// Fonction pour afficher l'arbre généalogique avec D3.js
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = ''; // Réinitialise le conteneur
 
-    // Structure hiérarchique pour D3
     const memberMap = members.reduce((acc, member) => {
         acc[member.id] = { ...member, children: [] };
         return acc;
@@ -45,7 +43,7 @@ function renderTree(members) {
     const root = members.filter(member => !member.parent_id).map(member => memberMap[member.id])[0];
 
     // Définir les dimensions de l'arbre
-    const width = 800;
+    const width = 1000;
     const height = 600;
 
     const svg = d3.select(treeContainer)
@@ -84,33 +82,41 @@ function renderTree(members) {
 
     // Cercles pour chaque nœud
     node.append('circle')
-        .attr('r', 20)
+        .attr('r', 30)
         .style('fill', d => d.data.sexe === 'femme' ? '#ffb6c1' : '#add8e6')
         .style('stroke', '#333')
         .style('stroke-width', 2);
 
     // Texte pour chaque nœud
     node.append('text')
-        .attr('dy', -30)
+        .attr('dy', -40)
         .attr('text-anchor', 'middle')
         .style('font-size', '12px')
         .style('font-family', 'Arial')
         .text(d => `${d.data.prenom} ${d.data.nom}`);
 
-    // Boutons pour suppression
+    // Affichage des détails (ID, date de naissance)
     node.append('text')
-        .attr('dy', 40)
+        .attr('dy', 50)
         .attr('text-anchor', 'middle')
         .style('font-size', '10px')
-        .style('cursor', 'pointer')
-        .style('fill', 'red')
-        .text('Supprimer')
-        .on('click', async (event, d) => {
-            if (confirm(`Voulez-vous vraiment supprimer ${d.data.prenom} ${d.data.nom} ?`)) {
-                await deletePerson(d.data.id);
-            }
+        .style('fill', '#555')
+        .text(d => `ID: ${d.data.id}, Naissance: ${d.data.dob}`);
+
+    // Relations
+    node.append('text')
+        .attr('dy', 70)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '10px')
+        .style('fill', '#777')
+        .text(d => {
+            const relations = [];
+            if (d.data.parent_id) relations.push(`Père/Mère: ${d.data.parent_id}`);
+            if (d.data.spouse_id) relations.push(`Conjoint: ${d.data.spouse_id}`);
+            return relations.join(' | ');
         });
 }
+
 
 // Fonction pour supprimer un membre
 async function deletePerson(memberId) {
