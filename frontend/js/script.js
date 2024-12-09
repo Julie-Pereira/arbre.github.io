@@ -10,6 +10,21 @@ window.onload = async function () {
     await loadTree();
 };
 
+// Charger et afficher l'arbre généalogique
+async function loadTree() {
+    try {
+        const { data, error } = await supabase.from('members').select('*');
+
+        if (error) {
+            console.error("Erreur lors du chargement des membres :", error);
+        } else {
+            renderTree(data);
+        }
+    } catch (error) {
+        console.error("Erreur lors du chargement de l'arbre :", error);
+    }
+}
+
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = '';
