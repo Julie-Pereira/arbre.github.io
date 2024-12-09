@@ -195,17 +195,63 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
     const lastName = document.getElementById('last-name').value;
     const gender = document.getElementById('gender').value;
     const dob = document.getElementById('dob').value;
+    const relation = document.getElementById('relation').value;
 
     const personData = {
         prenom: firstName,
         nom: lastName,
         sexe: gender,
         dob: dob,
+        relation: relation, // Ajout de la relation
         parent_id: null
     };
 
-    await addAncestors(personData, 5); // Ajout dynamique jusqu'à une profondeur donnée
+    await addPersonWithRelation(personData);
 });
+
+async function addPersonWithRelation(personData) {
+    try {
+        if (personData.relation === 'none') {
+            // Si aucune relation spécifiée, ajoute juste la personne comme une nouvelle entrée
+            await insertPerson(personData);
+        } else {
+            // Sinon, établissez une relation appropriée
+            const { data: parents, error } = await supabase
+                .from('members')
+                .select('*')
+                .eq('relation', personData.relation); // Trouver la personne liée par la relation
+
+            if (error) {
+                console.error('Erreur lors de la recherche du parent : ', error);
+                return;
+            }
+
+            const parent = parents[0];
+
+            if (parent) {
+                personData.parent_id = parent.id;
+                await insertPerson(personData);
+            } else {
+                console.error('Aucun membre correspondant à la relation spécifiée');
+            }
+        }
+    } catch (error) {
+        console.error('Erreur inattendue : ', error);
+    }
+}
+
+async function insertPerson(personData) {
+    const { data, error } = await supabase
+        .from('members')
+        .insert([personData]);
+
+    if (error) {
+        console.error('Erreur lors de l\'insertion dans la base de données : ', error);
+    } else {
+        console.log('Personne ajoutée avec succès : ', data);
+        await loadTree();
+    }
+}
 
 // Afficher le formulaire d'ajout
 document.getElementById('addPersonButton').addEventListener('click', function () {
