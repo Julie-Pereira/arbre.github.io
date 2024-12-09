@@ -114,34 +114,42 @@ function renderTree(members) {
 
     // Dessiner les cercles dynamiques
     node.append('circle')
-        .attr('r', d => Math.max(50, d.maxTextWidth / 2 + 15)) // Rayon basé sur la largeur du texte
+    .attr('r', d => {
+        // Largeur maximale du texte
+        const padding = 15; // Marge supplémentaire pour éviter les débordements
+        return Math.max(50, d.maxTextWidth / 2 + padding); // Rayon dynamique
+    })
         .style('fill', d => d.data.sexe === 'femme' ? '#ffb6c1' : '#add8e6')
         .style('stroke', '#333')
         .style('stroke-width', 2)
         .style('filter', 'url(#shadow)');
 
+
     // Texte à l'intérieur des cercles (centré dynamiquement)
     node.append('text')
-        .attr('text-anchor', 'middle') // Centré horizontalement
-        .style('font-size', '10px')
+        .attr('text-anchor', 'middle') // Centrer horizontalement
+        .style('font-size', '12px')
         .style('font-family', 'Arial')
         .selectAll('tspan')
         .data(d => {
-            const lines = [
-                `ID: ${d.data.id}`,
-                `${d.data.prenom} ${d.data.nom}`,
-                `${d.data.dob}`
+            // Définir les lignes de texte
+            return [
+                `ID: ${d.data.id}`,                // Ligne 1 : ID
+                `${d.data.prenom} ${d.data.nom}`,  // Ligne 2 : Nom/Prénom
+                `${d.data.dob}`                    // Ligne 3 : Date de naissance
             ];
-            return lines;
         })
         .enter()
         .append('tspan')
-        .attr('x', 0) // Centré horizontalement
+        .attr('x', 0) // Centrer chaque ligne horizontalement
         .attr('dy', (d, i, nodes) => {
-            const offset = (nodes.length - 1) * -0.6; // Décalage vers le haut pour centrer tout le texte
-            return `${offset + i * 1.2}em`; // Ajustement dynamique des lignes
+            // Calculer l'espacement vertical
+            const lineHeight = 1.2; // Espacement entre les lignes en em
+            const offset = (nodes.length - 1) / 2; // Décalage pour centrer verticalement
+            return `${(i - offset) * lineHeight}em`; // Ajustement dynamique des lignes
         })
         .text(d => d); // Ajouter le texte
+
 }
 
 
