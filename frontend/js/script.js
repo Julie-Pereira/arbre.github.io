@@ -206,34 +206,35 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
 
 async function addPersonWithRelation(personData) {
     try {
-        if (personData.relation === 'none') {
-            // Si aucune relation spécifiée, ajoute juste la personne comme une nouvelle entrée
-            await insertPerson(personData);
-        } else {
-            // Sinon, établissez une relation appropriée
-            const { data: parents, error } = await supabase
-                .from('members')
-                .select('*')
-                .eq('relation', personData.relation); // Trouver la personne liée par la relation
-
-            if (error) {
-                console.error('Erreur lors de la recherche du parent : ', error);
-                return;
-            }
-
-            const parent = parents[0];
-
-            if (parent) {
-                personData.parent_id = parent.id;
-                await insertPerson(personData);
-            } else {
-                console.error('Aucun membre correspondant à la relation spécifiée');
-            }
+      console.log('Relation recherchée :', personData.relation);
+  
+      if (personData.relation === 'none') {
+        await insertPerson(personData);
+      } else {
+        const { data: parents, error } = await supabase
+          .from('members')
+          .select('*')
+          .eq('relation', personData.relation);
+  
+        if (error) {
+          console.error('Erreur lors de la recherche du parent :', error);
         }
+  
+        console.log('Parents trouvés :', parents);
+  
+        if (parents && parents.length > 0) {
+          personData.parent_id = parents[0].id;
+          await insertPerson(personData);
+        } else {
+          console.error('Aucun membre correspondant à la relation spécifiée');
+          alert('Aucun membre correspondant à la relation spécifiée');
+        }
+      }
     } catch (error) {
-        console.error('Erreur inattendue : ', error);
+      console.error('Erreur inattendue :', error);
     }
-}
+  }
+  
 
 async function insertPerson(personData) {
     const { data, error } = await supabase
