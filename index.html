@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,61 +8,62 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="frontend/css/style.css">
 </head>
+
 <body>
 
     <!-- Titre centré -->
     <div class="header">
-        <h1>Arbre Généalogique</h1>
+        <h1>Arbre Généalogique Dynamique</h1>
     </div>
 
-    <!-- Conteneur du bouton Ajouter -->
+    <!-- Conteneur pour le bouton Ajouter -->
     <div class="add-person">
         <button id="addPersonButton">Ajouter une Personne</button>
     </div>
 
-     <!-- Formulaire d'ajout de personne (initialement caché) -->
-     <div id="form-container" class="form-container" style="display: none;">
+    <!-- Formulaire d'ajout de personne (initialement caché) -->
+    <div id="form-container" class="form-container" style="display: none;">
         <h2>Ajouter une Personne</h2>
         <form id="addPersonForm">
             <div class="form-group">
-                <label for="first-name">Prénom:</label>
+                <label for="first-name">Prénom :</label>
                 <input type="text" id="first-name" placeholder="Ex: Marie" required>
             </div>
-    
+
             <div class="form-group">
-                <label for="last-name">Nom:</label>
+                <label for="last-name">Nom :</label>
                 <input type="text" id="last-name" placeholder="Ex: Dupont" required>
             </div>
-    
+
             <div class="form-group">
-                <label for="gender">Sexe:</label>
+                <label for="gender">Sexe :</label>
                 <select id="gender">
                     <option value="homme">Homme</option>
                     <option value="femme">Femme</option>
                 </select>
             </div>
-    
+
             <div class="form-group">
-                <label for="dob">Date de naissance:</label>
+                <label for="dob">Date de naissance :</label>
                 <input type="date" id="dob" required>
             </div>
-    
-            <div class="form-group">
-                <label for="parent-id">Parent (ID):</label>
-                <input type="number" id="parent-id" placeholder="Ex: 1 (facultatif)">
-            </div>
-    
+
+            <p style="font-size: 0.9em; color: gray;">
+                * Les parents et leurs frères/sœurs seront ajoutés dynamiquement.
+            </p>
+
             <div class="form-footer">
                 <button type="submit" class="submit-button">Ajouter</button>
             </div>
         </form>
     </div>
 
-    <!-- Conteneur de l'arbre généalogique -->
+    <!-- Conteneur pour afficher l'arbre généalogique avec D3.js -->
     <div id="tree-container">
-        <!-- L'arbre sera généré dynamiquement ici -->
+        <!-- L'arbre généalogique dynamique sera affiché ici après soumission de données -->
     </div>
 
     <script type="module" src="frontend/js/script.js"></script>
 </body>
+
 </html>

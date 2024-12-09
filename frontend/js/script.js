@@ -135,7 +135,74 @@ async function deletePerson(memberId) {
     }
 }
 
-// Gestion du formulaire d'ajout
+async function addAncestors(personData, depth = 3) {
+    /**
+     * Fonction pour ajouter dynamiquement parents, leurs frères/sœurs, 
+     * et remonter dans l'arbre généalogique jusqu'à une profondeur définie.
+     */
+    let currentPerson = personData;
+    let currentDepth = 0;
+
+    while (currentDepth < depth) {
+        try {
+            // Ajouter le membre actuel
+            const { data, error } = await supabase
+                .from('members')
+                .insert([{ prenom: currentPerson.prenom, nom: currentPerson.nom, sexe: currentPerson.sexe, dob: currentPerson.dob }]);
+
+            if (error) {
+                console.error("Erreur d'ajout dans la base de données", error);
+                break;
+            }
+
+            const personId = data[0].id;
+
+            // Ajouter les parents de la personne
+            const parents = [
+                { prenom: "Père", nom: `${currentPerson.nom}_p`, sexe: "homme", dob: "1940-01-01", parent_id: personId },
+                { prenom: "Mère", nom: `${currentPerson.nom}_m`, sexe: "femme", dob: "1942-02-15", parent_id: personId }
+            ];
+
+            const { data: addedParents, error: parentError } = await supabase
+                .from('members')
+                .insert(parents);
+
+            if (parentError) {
+                console.error("Erreur lors de l'ajout des parents", parentError);
+                break;
+            }
+
+            const fatherId = addedParents[0].id;
+            const motherId = addedParents[1].id;
+
+            // Ajouter leurs frères et sœurs dynamiquement
+            const siblings = [
+                { prenom: "Oncle", nom: `${currentPerson.nom}_oncle`, sexe: "homme", dob: "1938-09-01", parent_id: fatherId },
+                { prenom: "Tante", nom: `${currentPerson.nom}_tante`, sexe: "femme", dob: "1944-11-05", parent_id: motherId }
+            ];
+
+            const { error: siblingsError } = await supabase
+                .from('members')
+                .insert(siblings);
+
+            if (siblingsError) {
+                console.error("Erreur lors de l'ajout de frères/sœurs", siblingsError);
+                break;
+            }
+
+            // Mettre à jour la personne actuelle pour remonter dans l'arbre
+            currentPerson.parent_id = personId;
+            currentDepth++;
+        } catch (error) {
+            console.error("Erreur inattendue lors de la logique dynamique", error);
+            break;
+        }
+    }
+
+    await loadTree();
+}
+
+
 document.getElementById('addPersonForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -143,24 +210,16 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
     const lastName = document.getElementById('last-name').value;
     const gender = document.getElementById('gender').value;
     const dob = document.getElementById('dob').value;
-    const parentId = document.getElementById('parent-id').value || null;
 
-    try {
-        await supabase.from('members').insert([
-            {
-                prenom: firstName,
-                nom: lastName,
-                sexe: gender,
-                dob: dob,
-                parent_id: parentId ? parseInt(parentId) : null,
-            }
-        ]);
+    const personData = {
+        prenom: firstName,
+        nom: lastName,
+        sexe: gender,
+        dob: dob,
+        parent_id: null
+    };
 
-        alert("Personne ajoutée avec succès !");
-        await loadTree(); // Recharge l’arbre après ajout
-    } catch (error) {
-        console.error("Erreur lors de l'ajout :", error);
-    }
+    await addAncestors(personData, 5); // Ajout dynamique jusqu'à une profondeur donnée
 });
 
 // Afficher le formulaire d'ajout
