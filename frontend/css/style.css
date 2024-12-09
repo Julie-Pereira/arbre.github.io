@@ -103,7 +103,7 @@ select {
 
 /* Zone pour l'arbre généalogique */
 #tree-container {
-    background-image: url('frontend/background-image.webp');
+    background-image: url('css/background-image.webp');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
