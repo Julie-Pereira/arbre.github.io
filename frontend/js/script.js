@@ -47,23 +47,22 @@ function renderTree(members) {
         }
     });
 
-    // Identifier le nœud central (par exemple, l'ID 1 comme point central)
-    const centralId = 1; 
-    const centralNode = memberMap[centralId];
-
+    // Dynamiser le choix du nœud central : choisir le premier membre
+    const centralNode = members[0];
     if (!centralNode) {
-        console.error("Le nœud central n'a pas été trouvé dans les membres.");
+        console.error("Aucun membre pour définir le nœud central.");
         return;
     }
 
-    // Construire l'arbre avec les frères et sœurs associés
+    console.log("Nœud central choisi : ", centralNode);
+
     const siblings = members.filter(
-        m => m.parent_id === centralNode.parent_id && m.id !== centralId
+        m => m.parent_id === centralNode.parent_id && m.id !== centralNode.id
     ).map(m => memberMap[m.id]);
 
     const root = {
         ...centralNode,
-        children: siblings
+        children: siblings,
     };
 
     const width = 1000;
@@ -85,7 +84,6 @@ function renderTree(members) {
         d.y = height - d.y;
     });
 
-    // Dessiner les liens
     g.selectAll('.link')
         .data(hierarchyData.links())
         .enter()
@@ -98,7 +96,6 @@ function renderTree(members) {
         .style('stroke', '#555')
         .style('stroke-width', 3);
 
-    // Dessiner les nœuds
     const node = g.selectAll('.node')
         .data(hierarchyData.descendants())
         .enter()
