@@ -29,40 +29,29 @@ function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = '';
 
-    // Construire la carte des membres avec les enfants en initialisant une structure par ID
     const memberMap = members.reduce((acc, member) => {
         acc[member.id] = { ...member, children: [] };
         return acc;
     }, {});
 
-    // Assurez-vous que le parent existe avant d'assigner des enfants
     members.forEach(member => {
         if (member.parent_id) {
             const parent = memberMap[member.parent_id];
             if (parent) {
                 parent.children.push(memberMap[member.id]);
-            } else {
-                console.warn(`Parent non trouvé pour parent_id=${member.parent_id}`);
             }
         }
     });
 
-    // Dynamiser le choix du nœud central : choisir le premier membre
     const centralNode = members[0];
     if (!centralNode) {
         console.error("Aucun membre pour définir le nœud central.");
         return;
     }
 
-    console.log("Nœud central choisi : ", centralNode);
-
-    const siblings = members.filter(
-        m => m.parent_id === centralNode.parent_id && m.id !== centralNode.id
-    ).map(m => memberMap[m.id]);
-
     const root = {
         ...centralNode,
-        children: siblings,
+        children: members.filter(m => m.parent_id === centralNode.id).map(m => memberMap[m.id]),
     };
 
     const width = 1000;
@@ -78,11 +67,7 @@ function renderTree(members) {
 
     treeLayout(hierarchyData);
 
-    const g = svg.append('g').attr('transform', 'translate(100,100)');
-
-    hierarchyData.descendants().forEach(d => {
-        d.y = height - d.y;
-    });
+    const g = svg.append('g').attr('transform', 'translate(100, 100)');
 
     g.selectAll('.link')
         .data(hierarchyData.links())
@@ -94,7 +79,7 @@ function renderTree(members) {
         .attr('x2', d => d.target.x)
         .attr('y2', d => d.target.y)
         .style('stroke', '#555')
-        .style('stroke-width', 3);
+        .style('stroke-width', 2);
 
     const node = g.selectAll('.node')
         .data(hierarchyData.descendants())
@@ -104,7 +89,7 @@ function renderTree(members) {
         .attr('transform', d => `translate(${d.x},${d.y})`);
 
     node.append('circle')
-        .attr('r', 30)
+        .attr('r', 20)
         .style('fill', d => d.data.sexe === 'femme' ? '#ffb6c1' : '#add8e6')
         .style('stroke', '#333')
         .style('stroke-width', 2);
