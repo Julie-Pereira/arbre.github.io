@@ -29,34 +29,41 @@ function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = '';
 
-    // Construire la carte des membres
+    // Construire la carte des membres avec les enfants en initialisant une structure par ID
     const memberMap = members.reduce((acc, member) => {
         acc[member.id] = { ...member, children: [] };
         return acc;
     }, {});
 
-    // Construire la hiérarchie ascendante
+    // Assurez-vous que le parent existe avant d'assigner des enfants
     members.forEach(member => {
-        if (member.parent_id && memberMap[member.parent_id]) {
-            memberMap[member.parent_id].children.push(memberMap[member.id]);
+        if (member.parent_id) {
+            const parent = memberMap[member.parent_id];
+            if (parent) {
+                parent.children.push(memberMap[member.id]);
+            } else {
+                console.warn(`Parent non trouvé pour parent_id=${member.parent_id}`);
+            }
         }
     });
 
-    // Identifier le nœud central (vous)
-    const centralId = 1; // Remplacez par l'ID central réel
+    // Identifier le nœud central (par exemple, l'ID 1 comme point central)
+    const centralId = 1; 
     const centralNode = memberMap[centralId];
 
-    // Ajouter les frères et sœurs
+    if (!centralNode) {
+        console.error("Le nœud central n'a pas été trouvé dans les membres.");
+        return;
+    }
+
+    // Construire l'arbre avec les frères et sœurs associés
     const siblings = members.filter(
         m => m.parent_id === centralNode.parent_id && m.id !== centralId
     ).map(m => memberMap[m.id]);
 
     const root = {
         ...centralNode,
-        children: [
-            ...siblings,
-            { id: 'parents', children: members.filter(m => m.id === centralNode.parent_id).map(m => memberMap[m.id]) }
-        ]
+        children: siblings
     };
 
     const width = 1000;
@@ -74,7 +81,6 @@ function renderTree(members) {
 
     const g = svg.append('g').attr('transform', 'translate(100,100)');
 
-    // Inverser les positions pour un arbre ascendant
     hierarchyData.descendants().forEach(d => {
         d.y = height - d.y;
     });
@@ -100,14 +106,12 @@ function renderTree(members) {
         .classed('node', true)
         .attr('transform', d => `translate(${d.x},${d.y})`);
 
-    // Ajouter des cercles
     node.append('circle')
         .attr('r', 30)
         .style('fill', d => d.data.sexe === 'femme' ? '#ffb6c1' : '#add8e6')
         .style('stroke', '#333')
         .style('stroke-width', 2);
 
-    // Ajouter du texte
     node.append('text')
         .attr('text-anchor', 'middle')
         .attr('dy', 5)
