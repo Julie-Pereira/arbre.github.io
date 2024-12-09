@@ -29,30 +29,25 @@ function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = '';
 
+    // Mapper les membres en un dictionnaire avec leurs enfants
     const memberMap = members.reduce((acc, member) => {
         acc[member.id] = { ...member, children: [] };
         return acc;
     }, {});
 
     members.forEach(member => {
-        if (member.parent_id) {
-            const parent = memberMap[member.parent_id];
-            if (parent) {
-                parent.children.push(memberMap[member.id]);
-            }
+        if (member.parent_id && memberMap[member.parent_id]) {
+            memberMap[member.parent_id].children.push(memberMap[member.id]);
         }
     });
 
-    const centralNode = members[0];
-    if (!centralNode) {
-        console.error("Aucun membre pour définir le nœud central.");
+    const rootMember = members.find(member => !member.parent_id); // Chercher le "nœud racine" principal
+    if (!rootMember) {
+        console.error("Aucun nœud racine trouvé.");
         return;
     }
 
-    const root = {
-        ...centralNode,
-        children: members.filter(m => m.parent_id === centralNode.id).map(m => memberMap[m.id]),
-    };
+    const root = d3.hierarchy(memberMap[rootMember.id], d => d.children);
 
     const width = 1000;
     const height = 600;
@@ -63,14 +58,13 @@ function renderTree(members) {
         .attr('height', height);
 
     const treeLayout = d3.tree().size([width - 200, height - 200]);
-    const hierarchyData = d3.hierarchy(root, d => d.children);
-
-    treeLayout(hierarchyData);
+    treeLayout(root);
 
     const g = svg.append('g').attr('transform', 'translate(100, 100)');
 
+    // Dessiner les connexions
     g.selectAll('.link')
-        .data(hierarchyData.links())
+        .data(root.links())
         .enter()
         .append('line')
         .classed('link', true)
@@ -81,8 +75,9 @@ function renderTree(members) {
         .style('stroke', '#555')
         .style('stroke-width', 2);
 
+    // Dessiner les nœuds
     const node = g.selectAll('.node')
-        .data(hierarchyData.descendants())
+        .data(root.descendants())
         .enter()
         .append('g')
         .classed('node', true)
