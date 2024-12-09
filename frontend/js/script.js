@@ -29,18 +29,35 @@ function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = '';
 
+    // Construire la carte des membres
     const memberMap = members.reduce((acc, member) => {
         acc[member.id] = { ...member, children: [] };
         return acc;
     }, {});
 
+    // Construire la hiérarchie ascendante
     members.forEach(member => {
         if (member.parent_id && memberMap[member.parent_id]) {
             memberMap[member.parent_id].children.push(memberMap[member.id]);
         }
     });
 
-    const root = members.filter(member => !member.parent_id).map(member => memberMap[member.id])[0];
+    // Identifier le nœud central (vous)
+    const centralId = 1; // Remplacez par l'ID central réel
+    const centralNode = memberMap[centralId];
+
+    // Ajouter les frères et sœurs
+    const siblings = members.filter(
+        m => m.parent_id === centralNode.parent_id && m.id !== centralId
+    ).map(m => memberMap[m.id]);
+
+    const root = {
+        ...centralNode,
+        children: [
+            ...siblings,
+            { id: 'parents', children: members.filter(m => m.id === centralNode.parent_id).map(m => memberMap[m.id]) }
+        ]
+    };
 
     const width = 1000;
     const height = 600;
@@ -50,22 +67,17 @@ function renderTree(members) {
         .attr('width', width)
         .attr('height', height);
 
-    const defs = svg.append('defs');
-
-    defs.append('filter')
-        .attr('id', 'shadow')
-        .append('feDropShadow')
-        .attr('dx', 2)
-        .attr('dy', 2)
-        .attr('stdDeviation', 3)
-        .attr('flood-color', '#555');
-
     const treeLayout = d3.tree().size([width - 200, height - 200]);
     const hierarchyData = d3.hierarchy(root, d => d.children);
 
     treeLayout(hierarchyData);
 
     const g = svg.append('g').attr('transform', 'translate(100,100)');
+
+    // Inverser les positions pour un arbre ascendant
+    hierarchyData.descendants().forEach(d => {
+        d.y = height - d.y;
+    });
 
     // Dessiner les liens
     g.selectAll('.link')
@@ -80,6 +92,7 @@ function renderTree(members) {
         .style('stroke', '#555')
         .style('stroke-width', 3);
 
+    // Dessiner les nœuds
     const node = g.selectAll('.node')
         .data(hierarchyData.descendants())
         .enter()
@@ -87,70 +100,22 @@ function renderTree(members) {
         .classed('node', true)
         .attr('transform', d => `translate(${d.x},${d.y})`);
 
-    // Calculer la largeur maximale pour adapter la taille du cercle
-    node.each(function (d) {
-        const lines = [
-            `ID: ${d.data.id}`,
-            `${d.data.prenom} ${d.data.nom}`,
-            `${d.data.dob}`
-        ];
-
-        // Crée temporairement un élément texte pour mesurer la largeur
-        const textWidths = lines.map(line => {
-            const tempText = d3.select(this)
-                .append('text')
-                .style('font-size', '12px')
-                .style('font-family', 'Arial')
-                .text(line);
-
-            const width = tempText.node().getBBox().width; // Obtenir la largeur
-            tempText.remove(); // Nettoyer après mesure
-            return width;
-        });
-
-        // Déterminer la largeur maximale du texte
-        d.maxTextWidth = Math.max(...textWidths);
-    });
-
-    // Dessiner les cercles dynamiques
+    // Ajouter des cercles
     node.append('circle')
-    .attr('r', d => {
-        // Largeur maximale du texte
-        const padding = 15; // Marge supplémentaire pour éviter les débordements
-        return Math.max(50, d.maxTextWidth / 2 + padding); // Rayon dynamique
-    })
+        .attr('r', 30)
         .style('fill', d => d.data.sexe === 'femme' ? '#ffb6c1' : '#add8e6')
         .style('stroke', '#333')
-        .style('stroke-width', 2)
-        .style('filter', 'url(#shadow)');
+        .style('stroke-width', 2);
 
-
-    // Texte à l'intérieur des cercles (centré dynamiquement)
+    // Ajouter du texte
     node.append('text')
-        .attr('text-anchor', 'middle') // Centrer horizontalement
+        .attr('text-anchor', 'middle')
+        .attr('dy', 5)
         .style('font-size', '12px')
         .style('font-family', 'Arial')
-        .selectAll('tspan')
-        .data(d => {
-            // Définir les lignes de texte
-            return [
-                `ID: ${d.data.id}`,                // Ligne 1 : ID
-                `${d.data.prenom} ${d.data.nom}`,  // Ligne 2 : Nom/Prénom
-                `${d.data.dob}`                    // Ligne 3 : Date de naissance
-            ];
-        })
-        .enter()
-        .append('tspan')
-        .attr('x', 0) // Centrer chaque ligne horizontalement
-        .attr('dy', (d, i, nodes) => {
-            // Calculer l'espacement vertical
-            const lineHeight = 1.2; // Espacement entre les lignes en em
-            const offset = (nodes.length - 1) / 2; // Décalage pour centrer verticalement
-            return `${(i - offset) * lineHeight}em`; // Ajustement dynamique des lignes
-        })
-        .text(d => d); // Ajouter le texte
-
+        .text(d => `${d.data.prenom} ${d.data.nom}`);
 }
+
 
 
 // Fonction pour supprimer un membre

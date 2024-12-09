@@ -119,7 +119,7 @@ input:focus, select:focus {
 }
 
 #tree-container {
-    background-image: url('path/to/your/background-image.jpg');
+    background-image: url('frontend/data/background-image.webp');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
