@@ -10,21 +10,6 @@ window.onload = async function () {
     await loadTree();
 };
 
-// Charger et afficher l'arbre généalogique
-async function loadTree() {
-    try {
-        const { data, error } = await supabase.from('members').select('*');
-
-        if (error) {
-            console.error("Erreur lors du chargement des membres :", error);
-        } else {
-            renderTree(data);
-        }
-    } catch (error) {
-        console.error("Erreur lors du chargement de l'arbre :", error);
-    }
-}
-
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = '';
@@ -92,7 +77,7 @@ function renderTree(members) {
         const lines = [
             `ID: ${d.data.id}`,
             `${d.data.prenom} ${d.data.nom}`,
-            d.data.dob
+            `${d.data.dob}`
         ];
 
         // Crée temporairement un élément texte pour mesurer la largeur
@@ -114,7 +99,7 @@ function renderTree(members) {
 
     // Dessiner les cercles dynamiques
     node.append('circle')
-        .attr('r', d => Math.max(40, d.maxTextWidth / 2 + 10)) // Rayon basé sur la largeur du texte
+        .attr('r', d => Math.max(50, d.maxTextWidth / 2 + 15)) // Rayon basé sur la largeur du texte
         .style('fill', d => d.data.sexe === 'femme' ? '#ffb6c1' : '#add8e6')
         .style('stroke', '#333')
         .style('stroke-width', 2)
@@ -138,12 +123,12 @@ function renderTree(members) {
         .append('tspan')
         .attr('x', 0) // Centré horizontalement
         .attr('dy', (d, i, nodes) => {
-            const lineCount = nodes.length; // Nombre de lignes
-            const offset = (lineCount - 1) * -0.6; // Calculer le décalage
-            return `${offset + i * 1.2}em`; // Ajustement dynamique
+            const offset = (nodes.length - 1) * -0.6; // Décalage vers le haut pour centrer tout le texte
+            return `${offset + i * 1.2}em`; // Ajustement dynamique des lignes
         })
         .text(d => d); // Ajouter le texte
 }
+
 
 // Fonction pour supprimer un membre
 async function deletePerson(memberId) {
