@@ -8,33 +8,43 @@
     <link rel="stylesheet" href="frontend/css/style.css">
 </head>
 <body>
+  <!-- Conception arbre généalogique -->
   <div id="tree-container"></div>
 
-  <!-- Formulaire pour ajouter une personne -->
-  <div id="form-container" style="display:none;">
+  <!-- Section pour le formulaire -->
+  <div id="form-container">
+    <div class="form-header">
+      <button class="form-close">✖</button>
+    </div>
     <form id="addPersonForm">
-      <h2>Ajouter une personne</h2>
-      <label for="first-name">Prénom:</label>
-      <input type="text" id="first-name" name="first-name" required>
-      <label for="last-name">Nom:</label>
-      <input type="text" id="last-name" name="last-name" required>
-      <label for="gender">Sexe:</label>
-      <select id="gender" name="gender">
-        <option value="homme">Homme</option>
-        <option value="femme">Femme</option>
-      </select>
-      <label for="dob">Date de naissance:</label>
-      <input type="date" id="dob" name="dob" required>
-      <label for="relation">Relation:</label>
-      <select id="relation" name="relation">
-        <option value="none">Aucun</option>
-        <option value="father">Père</option>
-        <option value="mother">Mère</option>
-      </select>
-      <button type="submit">Ajouter</button>
+      <h3>Ajouter une Personne</h3>
+      <div>
+        <input type="text" id="first-name" placeholder="Prénom" required>
+        <input type="text" id="last-name" placeholder="Nom" required>
+      </div>
+      <div>
+        <select id="gender">
+          <option value="male">Homme</option>
+          <option value="female">Femme</option>
+        </select>
+      </div>
+      <div>
+        <input type="date" id="dob" placeholder="Date de naissance">
+      </div>
+      <button class="form-submit">Ajouter</button>
     </form>
   </div>
 
-  <button id="addPersonButton">Ajouter une personne</button>
+  <!-- Boutons pour les relations -->
+  <div class="controls">
+    <button id="addFatherButton">+ Ajouter Père</button>
+    <button id="addMotherButton">+ Ajouter Mère</button>
+    <button id="addSpouseButton">+ Ajouter Conjoint</button>
+    <button id="addSonButton">+ Ajouter Fils</button>
+    <button id="addDaughterButton">+ Ajouter Fille</button>
+  </div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

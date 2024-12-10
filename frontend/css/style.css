@@ -1,31 +1,72 @@
+/* Général */
 body {
     font-family: Arial, sans-serif;
+    background: #141414;
+    color: white;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
   }
   
+  /* Arbre */
   #tree-container {
-    width: 100%;
-    height: 600px;
-    background-color: #f4f4f4;
-    border: 1px solid #ddd;
-    margin: 20px 0;
-    position: relative;
+    width: 60%;
+    height: 100vh;
+    float: left;
+    background: #222;
+    padding: 10px;
   }
   
+  /* Conteneur pour le formulaire */
   #form-container {
+    float: right;
+    width: 40%;
+    background: #333;
     padding: 20px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-left: 2px solid #555;
+    height: 100vh;
   }
   
-  form label, form input, form select {
-    display: block;
-    margin: 10px 0;
+  .form-header {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .form-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  /* Styles pour le formulaire */
+  form {
+    margin-top: 20px;
+  }
+  
+  input,
+  select {
+    padding: 10px;
+    margin: 5px 0;
     width: 100%;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  /* Section Contrôle */
+  .controls {
+    background: #222;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  button {
+    padding: 10px;
+    color: white;
+    border: none;
+    background: pink;
+    cursor: pointer;
+    margin: 5px;
+    border-radius: 5px;
   }
   
