@@ -10,22 +10,39 @@ window.onload = async function () {
     await loadTree();
 };
 
+document.addEventListener('DOMContentLoaded', async () => {
+    const addPersonButton = document.getElementById('addPersonButton');
+    if (addPersonButton) {
+        addPersonButton.addEventListener('click', () => {
+            document.getElementById('form-container').style.display = 'block';
+        });
+    }
+
+    await loadTree();
+});
+
 // Charger et afficher l'arbre généalogique
 async function loadTree() {
     try {
         const { data: members, error } = await supabase.from('members').select('*');
+        
+        console.log('Membres récupérés depuis Supabase :', members);
 
         if (error) {
             console.error('Erreur lors du chargement des membres :', error);
             return;
         }
 
+        if (!members || members.length === 0) {
+            console.error('Aucun membre racine trouvé.');
+            return;
+        }
+
         renderTree(members);
     } catch (error) {
-        console.error('Erreur lors du chargement de l\'arbre :', error);
+        console.error('Erreur lors de l\'appel Supabase :', error);
     }
 }
-
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = '';
