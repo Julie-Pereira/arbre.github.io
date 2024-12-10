@@ -5,7 +5,7 @@ const supabaseUrl = 'https://uwqimphpkzcjinlucwwl.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cWltcGhwa3pjamlubHVjd3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMxMzA1ODcsImV4cCI6MjA0ODcwNjU4N30.IA-ZS1tu3FuUdrTioALpWuiJvgkkZRn4qX_ghcW4tXI';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Charger l'arbre généalogique à l'initialisation
+// Charger l'arbre généalogique au démarrage
 window.onload = async function () {
     await loadTree();
 };
@@ -13,15 +13,16 @@ window.onload = async function () {
 // Charger et afficher l'arbre généalogique
 async function loadTree() {
     try {
-        const { data, error } = await supabase.from('members').select('*');
+        const { data: members, error } = await supabase.from('members').select('*');
 
         if (error) {
-            console.error("Erreur lors du chargement des membres :", error);
-        } else {
-            renderTree(data);
+            console.error('Erreur lors du chargement des membres :', error);
+            return;
         }
+
+        renderTree(members);
     } catch (error) {
-        console.error("Erreur lors du chargement de l'arbre :", error);
+        console.error('Erreur lors du chargement de l\'arbre :', error);
     }
 }
 
@@ -41,9 +42,9 @@ function renderTree(members) {
         }
     });
 
-    const rootMember = members.find(member => !member.parent_id); // Chercher le "nœud racine" principal
+    const rootMember = members.find(member => !member.parent_id); // Trouver la racine
     if (!rootMember) {
-        console.error("Aucun nœud racine trouvé.");
+        console.error('Aucun membre racine trouvé.');
         return;
     }
 
@@ -60,7 +61,7 @@ function renderTree(members) {
     const treeLayout = d3.tree().size([width - 200, height - 200]);
     treeLayout(root);
 
-    const g = svg.append('g').attr('transform', 'translate(100, 100)');
+    const g = svg.append('g').attr('transform', 'translate(100, 50)');
 
     // Dessiner les connexions
     g.selectAll('.link')
@@ -95,94 +96,20 @@ function renderTree(members) {
         .style('font-size', '12px')
         .style('font-family', 'Arial')
         .text(d => `${d.data.prenom} ${d.data.nom}`);
+
+    // Ajouter un bouton de suppression sur chaque nœud
+    node.append('text')
+        .attr('x', 25)
+        .attr('y', 10)
+        .style('fill', 'red')
+        .style('cursor', 'pointer')
+        .text('X')
+        .on('click', async function (event, d) {
+            await deletePerson(d.data.id);
+        });
 }
 
-
-
-// Fonction pour supprimer un membre
-async function deletePerson(memberId) {
-    try {
-        const { error } = await supabase.from('members').delete().eq('id', memberId);
-
-        if (error) {
-            alert("Erreur lors de la suppression : " + error.message);
-        } else {
-            alert("Membre supprimé avec succès !");
-            await loadTree(); // Recharge l’arbre après suppression
-        }
-    } catch (error) {
-        console.error("Erreur lors de la suppression :", error);
-    }
-}
-
-async function addAncestors(personData, depth = 3) {
-    /**
-     * Fonction pour ajouter dynamiquement parents, leurs frères/sœurs, 
-     * et remonter dans l'arbre généalogique jusqu'à une profondeur définie.
-     */
-    let currentPerson = personData;
-    let currentDepth = 0;
-
-    while (currentDepth < depth) {
-        try {
-            // Ajouter le membre actuel
-            const { data, error } = await supabase
-                .from('members')
-                .insert([{ prenom: currentPerson.prenom, nom: currentPerson.nom, sexe: currentPerson.sexe, dob: currentPerson.dob }]);
-
-            if (error) {
-                console.error("Erreur d'ajout dans la base de données", error);
-                break;
-            }
-
-            const personId = data[0].id;
-
-            // Ajouter les parents de la personne
-            const parents = [
-                { prenom: "Père", nom: `${currentPerson.nom}_p`, sexe: "homme", dob: "1940-01-01", parent_id: personId },
-                { prenom: "Mère", nom: `${currentPerson.nom}_m`, sexe: "femme", dob: "1942-02-15", parent_id: personId }
-            ];
-
-            const { data: addedParents, error: parentError } = await supabase
-                .from('members')
-                .insert(parents);
-
-            if (parentError) {
-                console.error("Erreur lors de l'ajout des parents", parentError);
-                break;
-            }
-
-            const fatherId = addedParents[0].id;
-            const motherId = addedParents[1].id;
-
-            // Ajouter leurs frères et sœurs dynamiquement
-            const siblings = [
-                { prenom: "Oncle", nom: `${currentPerson.nom}_oncle`, sexe: "homme", dob: "1938-09-01", parent_id: fatherId },
-                { prenom: "Tante", nom: `${currentPerson.nom}_tante`, sexe: "femme", dob: "1944-11-05", parent_id: motherId }
-            ];
-
-            const { error: siblingsError } = await supabase
-                .from('members')
-                .insert(siblings);
-
-            if (siblingsError) {
-                console.error("Erreur lors de l'ajout de frères/sœurs", siblingsError);
-                break;
-            }
-
-            // Mettre à jour la personne actuelle pour remonter dans l'arbre
-            currentPerson.parent_id = personId;
-            currentDepth++;
-        } catch (error) {
-            console.error("Erreur inattendue lors de la logique dynamique", error);
-            break;
-        }
-    }
-
-    await loadTree();
-}
-
-
+// Ajouter une personne
 document.getElementById('addPersonForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -197,59 +124,79 @@ document.getElementById('addPersonForm').addEventListener('submit', async functi
         nom: lastName,
         sexe: gender,
         dob: dob,
-        relation: relation, // Ajout de la relation
-        parent_id: null
+        parent_id: null // Par défaut sans parent
     };
 
-    await addPersonWithRelation(personData);
+    await addPersonWithRelation(personData, relation);
 });
 
-async function addPersonWithRelation(personData) {
+// Ajouter une personne avec une relation
+async function addPersonWithRelation(personData, relation) {
     try {
-      console.log('Relation recherchée :', personData.relation);
-  
-      if (personData.relation === 'none') {
-        await insertPerson(personData);
-      } else {
-        const { data: parents, error } = await supabase
-          .from('members')
-          .select('*')
-          .eq('relation', personData.relation);
-  
-        if (error) {
-          console.error('Erreur lors de la recherche du parent :', error);
-        }
-  
-        console.log('Parents trouvés :', parents);
-  
-        if (parents && parents.length > 0) {
-          personData.parent_id = parents[0].id;
-          await insertPerson(personData);
+        if (relation === 'none') {
+            await insertPerson(personData);
         } else {
-          console.error('Aucun membre correspondant à la relation spécifiée');
-          alert('Aucun membre correspondant à la relation spécifiée');
+            const { data: parent, error } = await supabase
+                .from('members')
+                .select('*')
+                .eq('prenom', relation);
+
+            if (error) {
+                console.error('Erreur lors de la recherche du parent :', error);
+                return;
+            }
+
+            if (parent && parent.length > 0) {
+                personData.parent_id = parent[0].id;
+                await insertPerson(personData);
+            } else {
+                alert('Relation parentale non trouvée.');
+            }
         }
-      }
     } catch (error) {
-      console.error('Erreur inattendue :', error);
+        console.error('Erreur lors de l\'ajout avec relation :', error);
     }
-  }
-  
+}
 
+// Insérer une personne dans la base de données
 async function insertPerson(personData) {
-    const { data, error } = await supabase
-        .from('members')
-        .insert([personData]);
+    try {
+        const { data, error } = await supabase.from('members').insert([personData]);
 
-    if (error) {
-        console.error('Erreur lors de l\'insertion dans la base de données : ', error);
-    } else {
-        console.log('Personne ajoutée avec succès : ', data);
-        await loadTree();
+        if (error) {
+            console.error('Erreur lors de l\'insertion :', error);
+            return;
+        }
+
+        console.log('Personne ajoutée :', data);
+        await loadTree(); // Recharger l’arbre après ajout
+    } catch (error) {
+        console.error('Erreur lors de l\'insertion :', error);
+    }
+}
+
+// Supprimer une personne
+async function deletePerson(memberId) {
+    try {
+        const { error } = await supabase.from('members').delete().eq('id', memberId);
+
+        if (error) {
+            alert('Erreur lors de la suppression : ' + error.message);
+        } else {
+            alert('Membre supprimé avec succès.');
+            await loadTree(); // Recharger l’arbre après suppression
+        }
+    } catch (error) {
+        console.error('Erreur lors de la suppression :', error);
     }
 }
 
 // Afficher le formulaire d'ajout
 document.getElementById('addPersonButton').addEventListener('click', function () {
     document.getElementById('form-container').style.display = 'block';
+});
+
+// Cacher le formulaire d'ajout
+document.getElementById('cancelFormButton').addEventListener('click', function () {
+    document.getElementById('form-container').style.display = 'none';
 });
