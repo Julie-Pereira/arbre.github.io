@@ -5,62 +5,68 @@ body {
     color: white;
     margin: 0;
     padding: 0;
-  }
-  
-  /* Arbre */
-  #tree-container {
+}
+
+/* Arbre */
+#tree-container {
     width: 60%;
     height: 100vh;
     float: left;
     background: #222;
     padding: 10px;
-  }
-  
-  /* Conteneur pour le formulaire */
-  #form-container {
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Conteneur pour le formulaire */
+#form-container {
     float: right;
     width: 40%;
     background: #333;
     padding: 20px;
     border-left: 2px solid #555;
     height: 100vh;
-  }
-  
-  .form-header {
+    box-shadow: -2px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+.form-header {
     display: flex;
     justify-content: flex-end;
-  }
-  
-  .form-close {
+}
+
+.form-close {
     background: transparent;
     border: none;
     color: white;
     font-size: 16px;
     cursor: pointer;
-  }
-  
-  /* Styles pour le formulaire */
-  form {
+}
+
+/* Styles pour les formulaires */
+form {
     margin-top: 20px;
-  }
-  
-  input,
-  select {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+input,
+select {
     padding: 10px;
     margin: 5px 0;
     width: 100%;
-    border: none;
+    border: 1px solid #444;
     border-radius: 5px;
-  }
-  
-  /* Section Contrôle */
-  .controls {
     background: #222;
-    padding: 10px;
-    text-align: center;
-  }
-  
-  button {
+    color: white;
+}
+
+input::placeholder {
+    color: #888;
+}
+
+/* Boutons dans les formulaires */
+button,
+.form-submit {
     padding: 10px;
     color: white;
     border: none;
@@ -68,5 +74,84 @@ body {
     cursor: pointer;
     margin: 5px;
     border-radius: 5px;
-  }
-  
+}
+
+button:hover,
+.form-submit:hover {
+    background: #ff6b93;
+}
+
+/* Formulaire de création du membre racine */
+#create-root-member {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin: 20px;
+    background-color: #222;
+    border: 1px solid #444;
+    border-radius: 10px;
+    box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 400px;
+}
+
+#create-root-member h3 {
+    margin-bottom: 20px;
+    color: pink;
+}
+
+#create-root-member label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: white;
+}
+
+#create-root-member input,
+#create-root-member select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background: #222;
+    color: white;
+}
+
+#create-root-member button {
+    background-color: pink;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#create-root-member button:hover {
+    background-color: #ff6b93;
+}
+
+/* Section Contrôle */
+.controls {
+    background: #222;
+    padding: 10px;
+    text-align: center;
+    border-top: 2px solid #555;
+}
+
+.controls button {
+    padding: 10px;
+    color: white;
+    border: none;
+    background: pink;
+    cursor: pointer;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.controls button:hover {
+    background: #ff6b93;
+}
