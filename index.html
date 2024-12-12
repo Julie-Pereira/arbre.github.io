@@ -11,6 +11,28 @@
   <!-- Conception arbre généalogique -->
   <div id="tree-container"></div>
 
+  <div id="create-root-member" style="display: none;">
+    <h3>Créer le premier membre</h3>
+    <form id="root-member-form">
+        <label for="firstName">Prénom :</label>
+        <input type="text" id="firstName" name="firstName" required>
+        
+        <label for="lastName">Nom :</label>
+        <input type="text" id="lastName" name="lastName" required>
+        
+        <label for="dob">Date de naissance :</label>
+        <input type="date" id="dob" name="dob" required>
+        
+        <label for="sex">Sexe :</label>
+        <select id="sex" name="sex" required>
+            <option value="homme">Homme</option>
+            <option value="femme">Femme</option>
+        </select>
+        
+        <button type="submit">Créer le membre</button>
+    </form>
+  </div>
+
   <!-- Section pour le formulaire -->
   <div id="form-container">
     <div class="form-header">

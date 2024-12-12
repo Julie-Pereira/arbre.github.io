@@ -10,39 +10,64 @@ window.onload = async function () {
     await loadTree();
 };
 
-document.addEventListener('DOMContentLoaded', async () => {
-    const addPersonButton = document.getElementById('addPersonButton');
-    if (addPersonButton) {
-        addPersonButton.addEventListener('click', () => {
-            document.getElementById('form-container').style.display = 'block';
-        });
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    const rootMemberForm = document.getElementById('root-member-form');
+    
+    rootMemberForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const dob = document.getElementById('dob').value;
+        const sex = document.getElementById('sex').value;
 
-    await loadTree();
+        try {
+            const { data, error } = await supabase.from('members').insert([{
+                prenom: firstName,
+                nom: lastName,
+                sexe: sex,
+                dob: dob,
+                parent_id: null // Le premier membre est un membre racine
+            }]);
+
+            if (error) {
+                console.error('Erreur lors de la création du membre racine :', error.message);
+                alert('Une erreur s\'est produite lors de la création du membre.');
+                return;
+            }
+
+            alert('Membre racine créé avec succès.');
+            console.log('Membre créé :', data);
+            location.reload(); // Recharge la page pour afficher l'arbre avec le membre ajouté
+        } catch (err) {
+            console.error('Erreur inattendue :', err.message);
+        }
+    });
 });
 
 // Charger et afficher l'arbre généalogique
 async function loadTree() {
     try {
         const { data: members, error } = await supabase.from('members').select('*');
-        
-        console.log('Membres récupérés depuis Supabase :', members);
 
         if (error) {
-            console.error('Erreur lors du chargement des membres :', error);
+            console.error('Erreur lors de la récupération des membres :', error.message);
             return;
         }
 
         if (!members || members.length === 0) {
-            console.error('Aucun membre racine trouvé.');
+            console.log('Aucun membre trouvé.');
+            document.getElementById('create-root-member').style.display = 'block'; // Affiche le formulaire
             return;
         }
 
+        document.getElementById('create-root-member').style.display = 'none'; // Masque le formulaire
         renderTree(members);
-    } catch (error) {
-        console.error('Erreur lors de l\'appel Supabase :', error);
+    } catch (err) {
+        console.error('Erreur inattendue :', err.message);
     }
 }
+
 function renderTree(members) {
     const treeContainer = document.getElementById('tree-container');
     treeContainer.innerHTML = '';
